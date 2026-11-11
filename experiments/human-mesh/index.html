@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05050a">
+<title>Museum of Fields — Human Photon Study</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#030408;color:#eef1ff;font-family:Inter,Arial,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;display:block}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 37% 64% at 50% 50%,rgba(72,59,122,.10),rgba(6,7,15,.04) 43%,transparent 72%),radial-gradient(ellipse at 50% 52%,transparent 30%,rgba(0,0,0,.54) 90%);z-index:1}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:2;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E")}
+header{position:fixed;top:clamp(24px,5vh,52px);left:clamp(24px,4vw,76px);z-index:4;display:flex;align-items:center;gap:15px;pointer-events:none}
+.mark{width:33px;height:33px;border:1px solid #d9ddeb;border-radius:50%;display:grid;place-items:center;font:italic 21px Georgia,serif}
+.name{font-size:11px;letter-spacing:.27em;font-weight:600;text-shadow:0 0 14px #4d4b6b}
+#loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;border:1px solid rgba(170,161,240,.09);border-top-color:rgba(196,190,255,.65);animation:spin 1.3s linear infinite;z-index:3}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+#error{display:none;position:fixed;z-index:4;bottom:20px;left:20px;right:20px;text-align:center;font-size:12px;color:#bdb4dd}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<header><div class="mark">m</div><div class="name">MUSEUM OF FIELDS</div></header>
+<div id="loading"></div><div id="error" role="alert"></div>
+<script type="module">
+import * as THREE from "three";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {MeshSurfaceSampler} from "three/addons/math/MeshSurfaceSampler.js";
+
+const mobile = matchMedia("(max-width:700px)").matches;
+const COUNT = mobile ? 13000 : 32000;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x030408);
+const camera = new THREE.PerspectiveCamera(36,1,.1,100);
+camera.position.set(0,0,6.7);
+const renderer = new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:"high-performance"});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.prepend(renderer.domElement);
+const canvas = renderer.domElement;
+const loading = document.getElementById("loading");
+const error = document.getElementById("error");
+let cloud = null,material = null,position = null;
+let target = null,vel = null,phases = null,last = performance.now(),shock = 0;
+const pointer = {x:-100,y:-100,wx:1e6,wy:1e6,down:false,active:false};
+const clock = new THREE.Clock();
+const raycaster = new THREE.Raycaster();
+const plane = new THREE.Plane(new THREE.Vector3(0,0,1),0);
+const tempHit = new THREE.Vector3();
+const mouseNdc = new THREE.Vector2();
+let rotationTarget = 0;
+function resize(){
+ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+}
+addEventListener("resize",resize,{passive:true});
+function move(e){
+ const rect=canvas.getBoundingClientRect();
+ pointer.x=(e.clientX-rect.left)/rect.width*2-1;
+ pointer.y=-(e.clientY-rect.top)/rect.height*2+1;
+ mouseNdc.set(pointer.x,pointer.y);
+ raycaster.setFromCamera(mouseNdc,camera);
+ if(raycaster.ray.intersectPlane(plane,tempHit)){pointer.wx=tempHit.x;pointer.wy=tempHit.y;}
+ pointer.active=true;
+ rotationTarget=pointer.x*.055;
+}
+canvas.addEventListener("pointermove",move);
+canvas.addEventListener("pointerdown",e=>{move(e);pointer.down=true;try{canvas.setPointerCapture(e.pointerId);}catch{}});
+canvas.addEventListener("pointerup",()=>{if(pointer.down)shock=1.3;pointer.down=false});
+canvas.addEventListener("pointercancel",()=>pointer.down=false);
+canvas.addEventListener("pointerleave",()=>{pointer.active=false;pointer.wx=1e6;pointer.wy=1e6});
+canvas.addEventListener("wheel",e=>{e.preventDefault();camera.position.z=THREE.MathUtils.clamp(camera.position.z+e.deltaY*.004,4.6,10)},{passive:false});
+
+const vertexShader=[
+ 'precision highp float;',
+ 'attribute float aSize;',
+ 'attribute float aShade;',
+ 'attribute float aSeed;',
+ 'uniform float uDpr;',
+ 'uniform float uTime;',
+ 'varying float vShade;',
+ 'varying float vSeed;',
+ 'void main(){',
+ 'vShade=aShade;vSeed=aSeed;',
+ 'vec4 mv=modelViewMatrix*vec4(position,1.0);',
+ 'gl_Position=projectionMatrix*mv;',
+ 'gl_PointSize=clamp(aSize*uDpr*(7.0/max(1.,-mv.z)),.65,4.6*uDpr);',
+ '}'
+].join('\n');
+const fragmentShader=[
+ 'precision highp float;',
+ 'varying float vShade;',
+ 'varying float vSeed;',
+ 'uniform float uTime;',
+ 'void main(){',
+ 'vec2 p=gl_PointCoord-.5;',
+ 'float r2=dot(p,p);if(r2>.24)discard;',
+ 'float core=exp(-r2*140.);',
+ 'float halo=exp(-r2*24.);',
+ 'float blink=.90+.10*sin(uTime*(.8+vSeed*2.)+vSeed*17.);',
+ 'vec3 violet=vec3(.33,.31,.90);',
+ 'vec3 ice=vec3(.77,.83,1.0);',
+ 'vec3 pearl=vec3(1.0,.98,1.0);',
+ 'vec3 col=mix(violet,ice,clamp(vShade,.0,1.));',
+ 'col=mix(col,pearl,pow(vShade,3.0)*.65);',
+ 'float alpha=(core*.85+halo*.21)*blink*(.28+vShade*.76);',
+ 'gl_FragColor=vec4(col,alpha);',
+ '}'
+].join('\n');
+
+async function loadAsset(){
+ const sources=[
+   // Higher-detail MakeHuman-derived CC0 mesh, with locally hosted fallback.
+   "https://files.innerscene.com/library/male-base-mesh-3d-person-rigged-a-pose-380e6d89/038f3a526b2fc3efd012/male-base-mesh-base_male.glb",
+   "./assets/human_posed.glb"
+ ];
+ const loader=new GLTFLoader();
+ for(const src of sources){
+   try{
+     const gltf=await loader.loadAsync(src);
+     let selected=null,vertices=0;
+     gltf.scene.updateMatrixWorld(true);
+     gltf.scene.traverse(o=>{
+       if(o.isMesh&&o.geometry?.getAttribute("position")){
+         const n=o.geometry.getAttribute("position").count;
+         if(n>vertices){vertices=n;selected=o;}
+       }
+     });
+     if(!selected)continue;
+     selected.updateMatrixWorld(true);
+     const box=new THREE.Box3().setFromObject(selected);
+     const center=box.getCenter(new THREE.Vector3());
+     const height=box.getSize(new THREE.Vector3()).y;
+     if(height<.01)continue;
+     buildCloud(selected,center,3.48/height);
+     console.info("Human mesh source:",src, "mesh vertices:",vertices,"particle count:",COUNT);
+     loading.remove();
+     return;
+   }catch(e){console.warn("Mesh source unavailable:",src,e);}
+ }
+ error.textContent="The 3D model could not be loaded. Please check your connection and reload.";
+ error.style.display="block";
+ loading.remove();
+}
+
+function buildCloud(mesh, center, factor){
+ const geo=mesh.geometry.clone();
+ const samplerMesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial());
+ samplerMesh.matrixWorld.copy(mesh.matrixWorld);
+ const sampler=new MeshSurfaceSampler(samplerMesh).build();
+ const p=new THREE.Vector3(),n=new THREE.Vector3();
+ target=new Float32Array(COUNT*3);
+ position=new Float32Array(COUNT*3);
+ vel=new Float32Array(COUNT*3);
+ phases=new Float32Array(COUNT);
+ const size=new Float32Array(COUNT),shade=new Float32Array(COUNT),seed=new Float32Array(COUNT);
+ const matNormal=new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
+ for(let i=0;i<COUNT;i++){
+   sampler.sample(p,n);
+   p.applyMatrix4(mesh.matrixWorld);
+   n.applyMatrix3(matNormal).normalize();
+   const j=i*3, x=(p.x-center.x)*factor,y=(p.y-center.y)*factor,z=(p.z-center.z)*factor;
+   target[j]=x;target[j+1]=y;target[j+2]=z;
+   const angle=Math.random()*6.283,r=.18+Math.random()*.35;
+   position[j]=x+Math.cos(angle)*r;
+   position[j+1]=y+Math.sin(angle)*r;
+   position[j+2]=z+(Math.random()-.5)*.24;
+   seed[i]=Math.random();
+   phases[i]=Math.random()*6.283;
+   size[i]=.65+Math.random()*.95+(Math.random()>.975?1.55:0);
+   shade[i]=THREE.MathUtils.clamp(.35+n.z*.40+(y/3.48)*.17+(Math.random()-.5)*.17,0,1);
+ }
+ const g=new THREE.BufferGeometry();
+ g.setAttribute("position",new THREE.BufferAttribute(position,3).setUsage(THREE.DynamicDrawUsage));
+ g.setAttribute("aSize",new THREE.BufferAttribute(size,1));
+ g.setAttribute("aShade",new THREE.BufferAttribute(shade,1));
+ g.setAttribute("aSeed",new THREE.BufferAttribute(seed,1));
+ material=new THREE.ShaderMaterial({
+   vertexShader,fragmentShader,transparent:true,depthWrite:false,depthTest:false,
+   blending:THREE.AdditiveBlending,
+   uniforms:{uDpr:{value:renderer.getPixelRatio()},uTime:{value:0}}
+ });
+ cloud=new THREE.Points(g,material);
+ scene.add(cloud);
+}
+
+function frame(now){
+ requestAnimationFrame(frame);
+ const delta=Math.min(2.0,Math.max(.2,(now-last)/16.67||1));last=now;
+ const t=clock.getElapsedTime();
+ if(cloud){
+   const damping=Math.pow(pointer.down?.85:.90,delta);
+   const spring=(pointer.down?.025:.019)*delta;
+   const radius=pointer.down?.48:.37;
+   const radius2=radius*radius;
+   for(let i=0;i<COUNT;i++){
+     const j=i*3;
+     const wobble=.0037;
+     const tx=target[j]+Math.sin(t*.53+phases[i])*wobble;
+     const ty=target[j+1]+Math.cos(t*.49+phases[i]*1.3)*wobble;
+     const tz=target[j+2];
+     let ax=(tx-position[j])*spring,ay=(ty-position[j+1])*spring,az=(tz-position[j+2])*spring;
+     if(pointer.active){
+       const dx=position[j]-pointer.wx,dy=position[j+1]-pointer.wy;
+       const d2=dx*dx+dy*dy;
+       if(d2<radius2){
+         const inf=Math.exp(-d2/(radius2*.33))*(pointer.down?-.018:.040)*delta;
+         ax+=dx*inf;ay+=dy*inf;az+=(pointer.down?-.003:.004)*inf;
+       }
+     }
+     if(shock>.005){
+       const dx=position[j]-pointer.wx,dy=position[j+1]-pointer.wy;
+       const dd=Math.sqrt(dx*dx+dy*dy)+.01;
+       const inf=.008*shock*delta*Math.exp(-dd/1.2);
+       ax+=dx/dd*inf;ay+=dy/dd*inf;
+     }
+     vel[j]=(vel[j]+ax)*damping;vel[j+1]=(vel[j+1]+ay)*damping;vel[j+2]=(vel[j+2]+az)*damping;
+     position[j]+=vel[j]*delta;
+     position[j+1]+=vel[j+1]*delta;
+     position[j+2]+=vel[j+2]*delta;
+   }
+   shock*=Math.pow(.93,delta);
+   cloud.geometry.attributes.position.needsUpdate=true;
+   cloud.rotation.y=THREE.MathUtils.lerp(cloud.rotation.y,rotationTarget,.045);
+   material.uniforms.uTime.value=t;
+ }
+ renderer.render(scene,camera);
+}
+addEventListener("visibilitychange",()=>{last=performance.now();});
+requestAnimationFrame(frame);
+loadAsset();
+</script>
+</body></html>
