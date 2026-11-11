@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#05050a">
-<title>Museum of Fields — Human Photon Study</title>
+<title>Museum of Fields — V1.5 Human Photon Study</title>
 <style>
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#030408;color:#eef1ff;font-family:Inter,Arial,sans-serif}
@@ -114,8 +114,8 @@ const fragmentShader=[
 
 async function loadAsset(){
  const sources=[
-   // Higher-detail MakeHuman-derived CC0 mesh, with locally hosted fallback.
-   "https://files.innerscene.com/library/male-base-mesh-3d-person-rigged-a-pose-380e6d89/038f3a526b2fc3efd012/male-base-mesh-base_male.glb",
+   // Local CC0 MakeHuman-derived 109k-triangle neutral body mesh.
+   "./assets/makehuman_base_male.glb",
    "./assets/human_posed.glb"
  ];
  const loader=new GLTFLoader();
