@@ -1,0 +1,54 @@
+name: Bake visible human photons
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-photons.yml'
+      - 'experiments/human-mesh/bake_points.py'
+      - 'experiments/human-mesh/photon-template.html'
+      - 'experiments/human-mesh/assets/makehuman_base_male.glb'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: photon-bake
+  cancel-in-progress: false
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install mesh sampler
+        run: python -m pip install --quiet --disable-pip-version-check 'trimesh>=4.8,<5' 'numpy>=1.26,<3'
+      - name: Bake CC0 mesh into standalone visible photons
+        run: python experiments/human-mesh/bake_points.py
+      - name: Validate self-contained viewer
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('experiments/human-mesh/index.html').read_text()
+          assert len(s)>150000, len(s)
+          assert '{{PHOTON_DATA}}' not in s
+          assert 'window.photonDebug' in s
+          assert 'https://' not in s, 'Repair must have zero external runtime dependencies'
+          print('Validated standalone HTML chars:',len(s))
+          PY
+      - name: Commit built viewer
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experiments/human-mesh/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Fix human photons blank screen using embedded 3D surface samples'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
