@@ -1,24 +1,38 @@
-# ui-motion-lab
+# Museum of Fields — Interactive Art Laboratory
 
-## Museum of Fields — V1.1
+A collection of web-based particle and spatial interaction experiments.
 
-An interactive dark museum / gallery prototype with a central particle installation and original WebGL2 rendering.
+## Live pages
 
-**Run:** open [index.html](./index.html) in a current browser. No dependencies or compilation needed.
+- [V1.2 — Isolated Light](https://bianen.github.io/ui-motion-lab/) — original light sculpture.
+- [Human Mesh Photon Study](https://bianen.github.io/ui-motion-lab/experiments/human-mesh/) — a real 3D human mesh sampled into tens of thousands of dynamic luminous particles.
 
-**Controls:** mouse Move / Hold / Release; scroll for zoom; left/right arrow keys to change sculptural modes.
+## Human mesh experiment
 
-**Design:** top heading only; exhibition space, luminous artworks, and strongly contrasted shadow.
+The **primary mesh** is a MakeHuman-derived neutral adult male base model from Innerscene, published CC0, retrieved from the publisher at runtime if cross-origin loading succeeds:
+https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89
 
-### GitHub Pages
+The **local fallback** in `experiments/human-mesh/assets/human_posed.glb` is the CC0 Quaternius humanoid prepared by UMRAM-Bilkent:
+https://github.com/UMRAM-Bilkent/supine-human-model
 
-A deployment workflow is included in `.github/workflows/pages.yml`. For publishing, go to **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+Model is sampled by triangle area using Three.js `MeshSurfaceSampler`, not by drawing ellipses or stick-figure proportions.
 
-GitHub Free requires a public repository to use Pages. Making this repository public exposes its source code; on eligible paid plans it may remain private.
+The scene uses self-contained original particle shaders, and only the top heading is shown.
 
-### Next experiments
+Controls:
+- Move pointer: disturb local photons
+- Hold: gather and stabilize photons
+- Release: ripple dispersion, then re-form
+- Mouse wheel: zoom
+- On mobile: touch/hold/release
 
-- Art-directed museum spotlight illumination and dark falloff.
-- Volumetric light, physically based surfaces, cinematic framing.
-- Split scene logic into reusable modules.
-- Optimize mobile and WebGL fallback.
+The external mesh and Three.js modules require network access for the first load; a CC0 mesh backup is checked into this repository.
+
+## Publishing
+
+`.github/workflows/pages.yml` publishes the root of `main` via GitHub Pages.
+
+## License notes
+
+The locally bundled fallback model is CC0-1.0 (source above).
+Original site layout, particle logic, and code are experimental.
