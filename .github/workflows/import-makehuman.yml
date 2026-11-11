@@ -1,0 +1,38 @@
+name: Import CC0 MakeHuman reference model
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/import-makehuman.yml
+
+permissions:
+  contents: write
+
+jobs:
+  download-mesh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download published CC0 MakeHuman-derived GLB
+        shell: bash
+        run: |
+          mkdir -p experiments/human-mesh/assets
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 \
+            --output experiments/human-mesh/assets/makehuman_base_male.glb \
+            'https://files.innerscene.com/library/male-base-mesh-3d-person-rigged-a-pose-380e6d89/038f3a526b2fc3efd012/male-base-mesh-base_male.glb'
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('experiments/human-mesh/assets/makehuman_base_male.glb')
+          b=p.read_bytes()
+          assert len(b)>500000 and b[:4]==b'glTF', 'Invalid GLB download'
+          print('Validated GLB bytes:',len(b))
+          PY
+      - name: Commit model with source attribution
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experiments/human-mesh/assets/makehuman_base_male.glb
+          if ! git diff --cached --quiet; then
+            git commit -m "Mirror CC0 MakeHuman body GLB for stable offline loading"
+            git push origin HEAD:main
+          fi
