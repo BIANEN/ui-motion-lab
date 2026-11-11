@@ -36,3 +36,7 @@ The 3D body models are stored in this repository. Three.js modules are loaded fr
 
 The locally bundled fallback model is CC0-1.0 (source above).
 Original site layout, particle logic, and code are experimental.
+
+### Photon viewer reliability update
+
+The human-mesh experiment now contains **42,000 3D surface-sampled points baked into a single standalone HTML page**. It does not depend on runtime Three.js CDN access or GLB downloads. Build source: `experiments/human-mesh/bake_points.py`, generated using `.github/workflows/build-photons.yml`.
