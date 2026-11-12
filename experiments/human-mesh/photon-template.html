@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#03040a">
-<title>Museum of Fields — V1.7 | Human Photon Field</title>
+<title>Museum of Fields — V1.7.1 | Human Photon Field</title>
 <style>
 :root{--bg:#03040a;--fg:#f2f0ff;--muted:#a19bbd}
 *{box-sizing:border-box}
@@ -24,7 +24,7 @@ header{position:fixed;top:clamp(22px,5vh,54px);left:clamp(22px,4vw,72px);pointer
 <body>
 <canvas id="canvas"></canvas><div id="veil"></div>
 <header><div class="mark">m</div><div class="name">MUSEUM OF FIELDS</div></header>
-<div id="status">V1.7 · HUMAN PHOTON FIELD</div>
+<div id="status">V1.7.1 · HUMAN PHOTON FIELD</div>
 <div id="problem" role="alert"></div>
 <script>
 (function(){
@@ -37,22 +37,25 @@ const CONFIG=Object.freeze({
   rotation:'orbit',background:'ambient',renderer:'canvas'
 });
 const PHYSICS=Object.freeze({
-  scatterRadiusPx:155,
-  scatterVelocity:.0065,
-  activityDecay:.80,
+  scatterRadiusPx:130,
+  scatterVelocity:.0032,
+  contactEaseMs:220,
+  contactReleaseMs:95,
+  pointerVelocitySmoothMs:95,
+  pointerIdleMs:75,
   chargeRadiusPx:116,
   chargeRate:.028,
   maxCharge:2.25,
-  shockSpeedPx:17.5,
-  shockWidthPx:45,
-  shockMaxPx:450,
-  shockVelocity:.0065,
+  shockSpeedPx:11,
+  shockWidthPx:28,
+  shockMaxPx:220,
+  shockVelocity:.004,
   returnSpringRest:.0070,
   returnSpringScatter:.0046,
   returnDampingRest:.935,
   returnDampingScatter:.946,
   scatterDecay:.980,
-  maxOffset:.38,
+  maxOffset:.26,
   breathAmplitude:.0010
 });
 const VISUALS=Object.freeze({
@@ -107,19 +110,27 @@ function rand(){random=(random*1664525+1013904223)>>>0;return random/4294967296;
 const offset=new Float32Array(COUNT*3);
 const velocity=new Float32Array(COUNT*3);
 const scatterState=new Float32Array(COUNT);
+const contactEnvelope=new Float32Array(COUNT);
 const seeds=new Float32Array(COUNT);
 const screenX=new Float32Array(COUNT);
 const screenY=new Float32Array(COUNT);
 const depthBand=new Uint8Array(COUNT);
 for(let i=0;i<COUNT;i++)seeds[i]=rand()*6.28318530718;
-const pointer={x:-10000,y:-10000,lastX:0,lastY:0,inside:false,down:false,orbit:false,activity:0,charge:0,dragX:0,dragY:0};
+// Pointer event velocity is recorded without applying impulses; the frame loop
+// low-pass filters speed, and each photon separately eases contact strength.
+const pointer={x:-10000,y:-10000,lastX:0,lastY:0,inside:false,down:false,
+  orbit:false,activity:0,charge:0,
+  rawVX:0,rawVY:0,smoothVX:0,smoothVY:0,
+  lastEventAt:0,lastMotionAt:-1e5};
 const camera={yaw:0,yawGoal:0,pitch:0,pitchGoal:0,zoom:1,scale:1};
 let wave=null,w=0,h=0,dpr=1,last=performance.now(),frameNumber=0;
 const debug=window.photonDebug={
-  loaded:true,version:'1.7',points:COUNT,
+  loaded:true,version:'1.7.1',points:COUNT,physics:PHYSICS,
   source:'prebaked CC0 MakeHuman GLB',config:CONFIG,
   renderer:'Canvas2D',drawCalls:0,scatterHits:0,charge:0,
   releaseEvents:0,maxDisplacementPx:0,orbitYaw:0,orbitPitch:0,
+  maxContact:0,contactHits:0,pointerSmoothedSpeed:0,shockHits:0,
+  maxShockHitDistancePx:0,waveRadiusPx:0,
   fpsMeasured:0,status:'ready'
 };
 
@@ -134,29 +145,41 @@ addEventListener('resize',resize,{passive:true});
 resize();
 
 function updatePointer(e){
+  const now=performance.now();
   const x=e.clientX,y=e.clientY;
   const dx=x-pointer.lastX,dy=y-pointer.lastY;
   pointer.x=x;pointer.y=y;pointer.inside=true;
+  const elapsed=pointer.lastEventAt
+    ? Math.max(8,Math.min(80,now-pointer.lastEventAt)) : 16.667;
   if(pointer.orbit){
     camera.yawGoal+=dx/Math.max(w,1)*6.28318*1.1;
     camera.pitchGoal=Math.max(-1.02,Math.min(1.02,camera.pitchGoal+dy/Math.max(h,1)*2.8));
-    pointer.activity=0;
-  }else if(!pointer.down&&pointer.lastX!==0){
-    // A moving pointer injects genuine outward kinetic energy in nearby photons.
-    const speed=Math.min(80,Math.hypot(dx,dy));
-    pointer.activity=Math.min(1.75,.3+speed/22);
-    pointer.dragX=dx;pointer.dragY=dy;
+    pointer.rawVX=0;pointer.rawVY=0;
+  }else if(!pointer.down && (dx!==0||dy!==0)){
+    // Normalize pointer motion to a 60Hz baseline. These are input targets,
+    // NOT direct photon impulses. The simulation smooths them independently.
+    const factor=16.667/elapsed;
+    pointer.rawVX=Math.max(-60,Math.min(60,dx*factor));
+    pointer.rawVY=Math.max(-60,Math.min(60,dy*factor));
+    pointer.lastMotionAt=now;
   }
   pointer.lastX=x;pointer.lastY=y;
+  pointer.lastEventAt=now;
 }
 canvas.addEventListener('pointermove',updatePointer);
-canvas.addEventListener('pointerenter',e=>{pointer.lastX=e.clientX;pointer.lastY=e.clientY;updatePointer(e)});
+canvas.addEventListener('pointerenter',e=>{
+  pointer.lastX=e.clientX;pointer.lastY=e.clientY;
+  pointer.lastEventAt=performance.now();
+  pointer.rawVX=0;pointer.rawVY=0;
+  updatePointer(e);
+});
 canvas.addEventListener('pointerdown',e=>{
   pointer.lastX=e.clientX;pointer.lastY=e.clientY;
   pointer.orbit=Boolean(e.shiftKey||e.button===2);
   pointer.down=!pointer.orbit;
   pointer.charge=pointer.down?.16:0;
-  pointer.activity=0;
+  pointer.rawVX=0;pointer.rawVY=0;pointer.activity=0;
+  pointer.smoothVX=0;pointer.smoothVY=0;
   updatePointer(e);
   try{canvas.setPointerCapture(e.pointerId)}catch(_){}
 });
@@ -167,11 +190,12 @@ function endPointer(){
     debug.releaseEvents+=1;
   }
   pointer.down=false;pointer.orbit=false;pointer.charge=0;
+  pointer.rawVX=0;pointer.rawVY=0;
 }
 canvas.addEventListener('pointerup',endPointer);
 canvas.addEventListener('pointercancel',endPointer);
 canvas.addEventListener('pointerleave',()=>{
-  if(!pointer.down&&!pointer.orbit){pointer.inside=false;pointer.activity=0;pointer.x=-10000;pointer.y=-10000;}
+  if(!pointer.down&&!pointer.orbit){pointer.inside=false;pointer.activity=0;pointer.rawVX=0;pointer.rawVY=0;pointer.x=-10000;pointer.y=-10000;}
 });
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('wheel',e=>{
@@ -196,20 +220,33 @@ function project(i,yawCos,yawSin,pitchCos,pitchSin){
   depthBand[i]=Math.max(0,Math.min(4,Math.floor((.52+depth*.5+luminance[i]*.24)*4.2)-1));
 }
 
-// Pointer scatter uses outward velocity (not an instantaneous position change).
+// Each photon has its own continuous contact envelope. A fresh contact does
+// not inherit the old full scatter force: exponential contact easing (220ms)
+// increases the force gradually, independent of smoothed pointer velocity.
 function applyScatter(i,j,dt){
-  if(!pointer.inside||pointer.orbit||pointer.down||pointer.activity<.055)return;
+  const active=pointer.inside&&!pointer.orbit&&!pointer.down&&pointer.activity>.02;
   const dx=screenX[i]-pointer.x,dy=screenY[i]-pointer.y;
-  const d2=dx*dx+dy*dy,r=PHYSICS.scatterRadiusPx;
-  if(d2>=r*r)return;
-  const distance=Math.sqrt(d2)+.01;
-  const shape=1-distance/r;
-  const strength=PHYSICS.scatterVelocity*shape*shape*pointer.activity*dt;
+  const r=PHYSICS.scatterRadiusPx;
+  const d2=dx*dx+dy*dy;
+  const inside=active&&d2<r*r;
+  const distance=inside?Math.sqrt(d2)+.01:0;
+  const radial=inside?Math.max(0,1-distance/r):0;
+  const falloff=radial*radial*(3-2*radial); // smoothstep at the boundary
+  const target=inside?falloff*Math.min(1,pointer.activity):0;
+  const oldContact=contactEnvelope[i];
+  const easeMs=target>oldContact?PHYSICS.contactEaseMs:PHYSICS.contactReleaseMs;
+  const alpha=1-Math.exp(-(16.667*dt)/easeMs);
+  const contact=oldContact+(target-oldContact)*alpha;
+  contactEnvelope[i]=contact;
+  if(contact>debug.maxContact)debug.maxContact=contact;
+  if(!inside||contact<.0001)return;
   const nx=dx/distance,ny=dy/distance;
-  velocity[j]+=nx*strength+(pointer.dragX/Math.max(camera.scale,1))*strength*.15;
-  velocity[j+1]-=ny*strength-(pointer.dragY/Math.max(camera.scale,1))*strength*.15;
-  velocity[j+2]+=(Math.sin(seeds[i]*10.1)*.38)*strength;
-  scatterState[i]=Math.max(scatterState[i],.38+shape*.62);
+  const strength=PHYSICS.scatterVelocity*contact*dt;
+  velocity[j]+=nx*strength+(pointer.smoothVX/Math.max(camera.scale,1))*strength*.11;
+  velocity[j+1]-=ny*strength-(pointer.smoothVY/Math.max(camera.scale,1))*strength*.11;
+  velocity[j+2]+=Math.sin(seeds[i]*10.1)*.20*strength;
+  scatterState[i]=Math.max(scatterState[i],.18+contact*.72);
+  debug.contactHits+=1;
   debug.scatterHits+=1;
 }
 
@@ -233,6 +270,8 @@ function applyShockwave(i,j,dt){
   if(!wave)return;
   const dx=screenX[i]-wave.x,dy=screenY[i]-wave.y;
   const distance=Math.sqrt(dx*dx+dy*dy)+.001;
+  // Absolute hard boundary: no shockwave impulse beyond 220 screen pixels.
+  if(distance>PHYSICS.shockMaxPx)return;
   const delta=Math.abs(distance-wave.radius);
   if(delta>=PHYSICS.shockWidthPx)return;
   const influence=1-delta/PHYSICS.shockWidthPx;
@@ -241,6 +280,8 @@ function applyShockwave(i,j,dt){
   velocity[j+1]-=dy/distance*force;
   velocity[j+2]+=Math.sin(seeds[i]*4.2)*force*.5;
   scatterState[i]=Math.max(scatterState[i],.65+.35*influence);
+  debug.shockHits+=1;
+  debug.maxShockHitDistancePx=Math.max(debug.maxShockHitDistancePx,distance);
 }
 
 function applyReturn(i,j,dt,t){
@@ -270,15 +311,27 @@ function applyReturn(i,j,dt,t){
 function updatePhysics(dt,t){
   camera.yaw+=(camera.yawGoal-camera.yaw)*.10;
   camera.pitch+=(camera.pitchGoal-camera.pitch)*.10;
-  pointer.activity*=Math.pow(PHYSICS.activityDecay,dt);
-  pointer.dragX*=Math.pow(.85,dt);
-  pointer.dragY*=Math.pow(.85,dt);
+  // Pointer-speed smoothing in the simulation time domain: browser events may
+  // arrive at irregular rates. Decay stale input instead of applying impulses
+  // indefinitely after the pointer stops.
+  if(t*1000-pointer.lastMotionAt>PHYSICS.pointerIdleMs){
+    pointer.rawVX=0;pointer.rawVY=0;
+  }
+  const speedAlpha=1-Math.exp(-(16.667*dt)/PHYSICS.pointerVelocitySmoothMs);
+  pointer.smoothVX+=(pointer.rawVX-pointer.smoothVX)*speedAlpha;
+  pointer.smoothVY+=(pointer.rawVY-pointer.smoothVY)*speedAlpha;
+  const speed=Math.hypot(pointer.smoothVX,pointer.smoothVY);
+  pointer.activity=pointer.inside&&!pointer.down&&!pointer.orbit
+    ? Math.min(1,speed/15):0;
+  debug.pointerSmoothedSpeed=speed;
   if(pointer.down)pointer.charge=Math.min(PHYSICS.maxCharge,pointer.charge+PHYSICS.chargeRate*dt);
   if(wave){
-    wave.radius+=PHYSICS.shockSpeedPx*dt;
+    wave.radius=Math.min(PHYSICS.shockMaxPx,wave.radius+PHYSICS.shockSpeedPx*dt);
     wave.age+=dt;
-    if(wave.radius>PHYSICS.shockMaxPx)wave=null;
+    if(wave.radius>=PHYSICS.shockMaxPx)wave=null;
   }
+  debug.waveRadiusPx=wave?wave.radius:0;
+  debug.maxContact=0;
   const yc=Math.cos(camera.yaw),ys=Math.sin(camera.yaw);
   const pc=Math.cos(camera.pitch),ps=Math.sin(camera.pitch);
   let maxDisplacement=0;
@@ -363,7 +416,7 @@ function frame(now){
     requestAnimationFrame(frame);
   }catch(e){debug.status='error';showError(e);}
 }
-status.textContent='18K PHOTONS · MOVE: SCATTER · HOLD: CHARGE · RELEASE: SHOCKWAVE · SHIFT / RIGHT-DRAG: ORBIT';
+status.textContent='V1.7.1 · 18K PHOTONS · SOFT CONTACT · LOCAL SHOCKWAVE · SHIFT / RIGHT-DRAG: ORBIT';
 requestAnimationFrame(frame);
 })();
 </script></body></html>
