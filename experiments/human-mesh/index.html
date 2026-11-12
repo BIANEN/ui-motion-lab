@@ -38,7 +38,7 @@ const CONFIG=Object.freeze({
 });
 const PHYSICS=Object.freeze({
   scatterRadiusPx:155,
-  scatterVelocity:.021,
+  scatterVelocity:.0065,
   activityDecay:.80,
   chargeRadiusPx:116,
   chargeRate:.028,
@@ -46,12 +46,13 @@ const PHYSICS=Object.freeze({
   shockSpeedPx:17.5,
   shockWidthPx:45,
   shockMaxPx:450,
-  shockVelocity:.028,
+  shockVelocity:.0065,
   returnSpringRest:.0070,
-  returnSpringScatter:.0028,
+  returnSpringScatter:.0046,
   returnDampingRest:.935,
-  returnDampingScatter:.966,
+  returnDampingScatter:.946,
   scatterDecay:.980,
+  maxOffset:.38,
   breathAmplitude:.0010
 });
 const VISUALS=Object.freeze({
@@ -256,6 +257,13 @@ function applyReturn(i,j,dt,t){
   offset[j]+=velocity[j]*dt;
   offset[j+1]+=velocity[j+1]*dt;
   offset[j+2]+=velocity[j+2]*dt;
+  // Keep the sculpture recoverable even after repeated fast pointer strokes.
+  const magnitude=Math.hypot(offset[j],offset[j+1],offset[j+2]);
+  if(magnitude>PHYSICS.maxOffset){
+    const s=PHYSICS.maxOffset/magnitude;
+    offset[j]*=s;offset[j+1]*=s;offset[j+2]*=s;
+    velocity[j]*=.5;velocity[j+1]*=.5;velocity[j+2]*=.5;
+  }
   scatterState[i]*=Math.pow(PHYSICS.scatterDecay,dt);
 }
 
