@@ -67,7 +67,7 @@ luminance = np.clip(
 # Three little-endian uint16s + uint8 luminance per photon, exact offline payload.
 packed_xyz = np.round((coord + 1) * 32767.5).clip(0, 65535).astype("<u2")
 packet = np.empty((COUNT, 7), dtype=np.uint8)
-packet[:, :6] = packed_xyz.view(np.uint8).reshape(COUNT, 6)
+packet[:, :6] = np.ascontiguousarray(packed_xyz).view(np.uint8).reshape(COUNT, 6)
 packet[:, 6] = np.round(luminance * 255).astype(np.uint8)
 payload = base64.b64encode(packet.tobytes()).decode("ascii")
 
