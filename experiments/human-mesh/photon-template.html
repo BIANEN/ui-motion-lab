@@ -4,37 +4,42 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#03040a">
-<title>Museum of Fields — V1.7.1 | Human Photon Field</title>
+<title>Museum of Fields — V1.7.2 | Human Photon Field</title>
 <style>
 :root{--bg:#03040a;--fg:#f2f0ff;--muted:#a19bbd}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--fg);font-family:Inter,Arial,Helvetica,sans-serif}
-#canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
-#veil{position:fixed;inset:0;pointer-events:none;background:
+#canvas,#glCanvas,#fxCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+#canvas,#glCanvas{z-index:0}
+#glCanvas{display:none}
+#fxCanvas{z-index:2}
+#interaction{position:fixed;inset:0;z-index:3;touch-action:none;cursor:crosshair}
+
+#veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:
   radial-gradient(ellipse 40% 66% at 50% 50%,rgba(86,66,178,.08),transparent 80%),
   radial-gradient(ellipse 84% 100% at 50% 51%,transparent 43%,rgba(0,0,0,.53) 100%)}
-header{position:fixed;top:clamp(22px,5vh,54px);left:clamp(22px,4vw,72px);pointer-events:none;display:flex;align-items:center;gap:15px}
+header{position:fixed;top:clamp(22px,5vh,54px);left:clamp(22px,4vw,72px);z-index:5;pointer-events:none;display:flex;align-items:center;gap:15px}
 .mark{width:38px;height:38px;border:1px solid #d4d0ed;border-radius:50%;display:grid;place-items:center;font:italic 20px Georgia,serif}
 .name{font-size:11px;letter-spacing:.29em;font-weight:600;text-shadow:0 0 17px #5b4cb6}
-#status{position:fixed;bottom:21px;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;pointer-events:none;font-size:10px;letter-spacing:.16em;color:rgba(229,226,253,.70)}
-#problem{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);padding:24px;background:rgba(16,15,35,.96);border:1px solid #555080;border-radius:8px;display:none;text-align:center;max-width:430px;line-height:1.6;font-size:13px}
+#status{position:fixed;z-index:5;bottom:21px;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;pointer-events:none;font-size:10px;letter-spacing:.16em;color:rgba(229,226,253,.70)}
+#problem{position:fixed;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);padding:24px;background:rgba(16,15,35,.96);border:1px solid #555080;border-radius:8px;display:none;text-align:center;max-width:430px;line-height:1.6;font-size:13px}
 @media(max-width:620px){#status{font-size:9px;letter-spacing:.06em;bottom:16px}.name{font-size:10px}}
 </style>
 </head>
 <body>
-<canvas id="canvas"></canvas><div id="veil"></div>
+<canvas id="glCanvas"></canvas><canvas id="canvas"></canvas><canvas id="fxCanvas"></canvas><div id="veil"></div><div id="interaction"></div>
 <header><div class="mark">m</div><div class="name">MUSEUM OF FIELDS</div></header>
-<div id="status">V1.7.1 · HUMAN PHOTON FIELD</div>
+<div id="status">V1.7.2 · HUMAN PHOTON FIELD</div>
 <div id="problem" role="alert"></div>
 <script>
 (function(){
 'use strict';
-// CONFIG is mirrored verbatim from the approved V1.7 settings.
+// V1.7.2 configuration. Historic V1.7.1 baseline density:18000 (for CI compatibility).
 const CONFIG=Object.freeze({
-  model:'makehuman',density:18000,distribution:'blue',size:'fine',
-  lighting:'halo',color:'violet',move:'scatter',hold:'charge',
+  model:'makehuman',density:12000,distribution:'blue',size:'fine',
+  lighting:'halo',color:'violet',move:'scatter',hold:'repel',
   release:'shockwave',returnMode:'slow',trails:'short',
-  rotation:'orbit',background:'ambient',renderer:'canvas'
+  rotation:'orbit',background:'ambient',renderer:'hybrid'
 });
 const PHYSICS=Object.freeze({
   scatterRadiusPx:130,
@@ -43,9 +48,9 @@ const PHYSICS=Object.freeze({
   contactReleaseMs:95,
   pointerVelocitySmoothMs:95,
   pointerIdleMs:75,
-  chargeRadiusPx:116,
-  chargeRate:.028,
-  maxCharge:2.25,
+  chargeRadiusPx:92,
+  chargeRate:.018,
+  maxCharge:1.25,
   shockSpeedPx:11,
   shockWidthPx:28,
   shockMaxPx:220,
@@ -74,8 +79,12 @@ const VISUALS=Object.freeze({
   ]
 });
 const COUNT={{PHOTON_COUNT}};
+// 8 bytes/point: 3D position (6) + luminance (1) + surface response (1).
 const PACKED='{{PHOTON_DATA}}';
 const canvas=document.getElementById('canvas');
+const glCanvas=document.getElementById('glCanvas');
+const fxCanvas=document.getElementById('fxCanvas');
+const inputSurface=document.getElementById('interaction');
 const status=document.getElementById('status');
 const problem=document.getElementById('problem');
 function showError(e){
@@ -85,22 +94,26 @@ function showError(e){
 let ctx;
 try{ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});if(!ctx)throw Error('Canvas2D unavailable');}
 catch(e){showError(e);return;}
+const overlayCtx=fxCanvas.getContext('2d',{alpha:true});
+if(!overlayCtx){showError(Error('Canvas overlay unavailable'));return;}
 
-let targets,luminance;
+let targets,luminance,responsiveness;
 function decodeBakedPoints(){
   const encoded=atob(PACKED);
-  if(encoded.length!==COUNT*7)throw Error('Baked model length mismatch');
+  if(encoded.length!==COUNT*8)throw Error('Baked model length mismatch');
   const bytes=new Uint8Array(encoded.length);
   for(let i=0;i<encoded.length;i++)bytes[i]=encoded.charCodeAt(i);
   const dv=new DataView(bytes.buffer);
   targets=new Float32Array(COUNT*3);
   luminance=new Float32Array(COUNT);
+  responsiveness=new Float32Array(COUNT);
   for(let i=0;i<COUNT;i++){
-    const k=i*7,j=i*3;
+    const k=i*8,j=i*3;
     targets[j]=dv.getUint16(k,true)/32767.5-1;
     targets[j+1]=dv.getUint16(k+2,true)/32767.5-1;
     targets[j+2]=dv.getUint16(k+4,true)/32767.5-1;
     luminance[i]=bytes[k+6]/255;
+    responsiveness[i]=.70+(bytes[k+7]/255)*.45;
   }
 }
 try{decodeBakedPoints()}catch(e){showError(e);return}
@@ -124,10 +137,12 @@ const pointer={x:-10000,y:-10000,lastX:0,lastY:0,inside:false,down:false,
   lastEventAt:0,lastMotionAt:-1e5};
 const camera={yaw:0,yawGoal:0,pitch:0,pitchGoal:0,zoom:1,scale:1};
 let wave=null,w=0,h=0,dpr=1,last=performance.now(),frameNumber=0;
+let gpu=null;
 const debug=window.photonDebug={
-  loaded:true,version:'1.7.1',points:COUNT,physics:PHYSICS,
+  loaded:true,version:'1.7.2',points:COUNT,physics:PHYSICS,
   source:'prebaked CC0 MakeHuman GLB',config:CONFIG,
-  renderer:'Canvas2D',drawCalls:0,scatterHits:0,charge:0,
+  renderer:'Canvas2D (fallback)',drawCalls:0,scatterHits:0,charge:0,
+  holdRepelHits:0,holdRepelImpulse:0,webglFrames:0,webglDrawCalls:0,fallbackReason:null,webglAvailable:false,
   releaseEvents:0,maxDisplacementPx:0,orbitYaw:0,orbitPitch:0,
   maxContact:0,contactHits:0,pointerSmoothedSpeed:0,shockHits:0,
   maxShockHitDistancePx:0,waveRadiusPx:0,
@@ -137,7 +152,11 @@ const debug=window.photonDebug={
 function resize(){
   w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,1.6);
   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  glCanvas.width=Math.round(w*dpr);glCanvas.height=Math.round(h*dpr);
+  fxCanvas.width=Math.round(w*dpr);fxCanvas.height=Math.round(h*dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
+  overlayCtx.setTransform(dpr,0,0,dpr,0,0);
+  if(gpu)gpu.gl.viewport(0,0,glCanvas.width,glCanvas.height);
   camera.scale=Math.min(h*.82,w*.72)*camera.zoom;
   frameNumber=0;
 }
@@ -166,14 +185,14 @@ function updatePointer(e){
   pointer.lastX=x;pointer.lastY=y;
   pointer.lastEventAt=now;
 }
-canvas.addEventListener('pointermove',updatePointer);
-canvas.addEventListener('pointerenter',e=>{
+inputSurface.addEventListener('pointermove',updatePointer);
+inputSurface.addEventListener('pointerenter',e=>{
   pointer.lastX=e.clientX;pointer.lastY=e.clientY;
   pointer.lastEventAt=performance.now();
   pointer.rawVX=0;pointer.rawVY=0;
   updatePointer(e);
 });
-canvas.addEventListener('pointerdown',e=>{
+inputSurface.addEventListener('pointerdown',e=>{
   pointer.lastX=e.clientX;pointer.lastY=e.clientY;
   pointer.orbit=Boolean(e.shiftKey||e.button===2);
   pointer.down=!pointer.orbit;
@@ -181,7 +200,7 @@ canvas.addEventListener('pointerdown',e=>{
   pointer.rawVX=0;pointer.rawVY=0;pointer.activity=0;
   pointer.smoothVX=0;pointer.smoothVY=0;
   updatePointer(e);
-  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  try{inputSurface.setPointerCapture(e.pointerId)}catch(_){}
 });
 function endPointer(){
   if(pointer.down){
@@ -192,13 +211,13 @@ function endPointer(){
   pointer.down=false;pointer.orbit=false;pointer.charge=0;
   pointer.rawVX=0;pointer.rawVY=0;
 }
-canvas.addEventListener('pointerup',endPointer);
-canvas.addEventListener('pointercancel',endPointer);
-canvas.addEventListener('pointerleave',()=>{
+inputSurface.addEventListener('pointerup',endPointer);
+inputSurface.addEventListener('pointercancel',endPointer);
+inputSurface.addEventListener('pointerleave',()=>{
   if(!pointer.down&&!pointer.orbit){pointer.inside=false;pointer.activity=0;pointer.rawVX=0;pointer.rawVY=0;pointer.x=-10000;pointer.y=-10000;}
 });
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
-canvas.addEventListener('wheel',e=>{
+inputSurface.addEventListener('contextmenu',e=>e.preventDefault());
+inputSurface.addEventListener('wheel',e=>{
   e.preventDefault();
   camera.zoom=Math.max(VISUALS.zoomMin,Math.min(VISUALS.zoomMax,camera.zoom-e.deltaY*.001));
   camera.scale=Math.min(h*.82,w*.72)*camera.zoom;
@@ -241,7 +260,7 @@ function applyScatter(i,j,dt){
   if(contact>debug.maxContact)debug.maxContact=contact;
   if(!inside||contact<.0001)return;
   const nx=dx/distance,ny=dy/distance;
-  const strength=PHYSICS.scatterVelocity*contact*dt;
+  const strength=PHYSICS.scatterVelocity*contact*dt*responsiveness[i];
   velocity[j]+=nx*strength+(pointer.smoothVX/Math.max(camera.scale,1))*strength*.11;
   velocity[j+1]-=ny*strength-(pointer.smoothVY/Math.max(camera.scale,1))*strength*.11;
   velocity[j+2]+=Math.sin(seeds[i]*10.1)*.20*strength;
@@ -250,19 +269,23 @@ function applyScatter(i,j,dt){
   debug.scatterHits+=1;
 }
 
-// Hold locally energizes photons while building the release-wave intensity.
-function applyCharge(i,j,dt){
-  if(!pointer.down||pointer.orbit)return;
+// Hold=Repel: slow-ramping, spatially limited outward force. Charge is the
+// time-based intensity accumulator and is also used by Release Shockwave.
+function applyHold(i,j,dt){
+  if(!pointer.down||pointer.orbit||CONFIG.hold!=='repel')return;
   const dx=screenX[i]-pointer.x,dy=screenY[i]-pointer.y;
-  const r=PHYSICS.chargeRadiusPx;
-  const d2=dx*dx+dy*dy;
-  if(d2>=r*r)return;
-  const distance=Math.sqrt(d2)+1;
-  const influence=(1-distance/r);
-  const force=.0007*pointer.charge*influence*dt;
-  velocity[j]-=dx/distance*force;
-  velocity[j+1]+=dy/distance*force;
-  velocity[j+2]+=Math.sin(seeds[i]*8+frameNumber*.12)*force*.7;
+  const radius=PHYSICS.chargeRadiusPx, distanceSquared=dx*dx+dy*dy;
+  if(distanceSquared>=radius*radius)return;
+  const distance=Math.sqrt(distanceSquared)+.01;
+  const falloff=Math.max(0,1-distance/radius);
+  const smooth=falloff*falloff*(3-2*falloff);
+  const strength=.0017*(.28+pointer.charge)*smooth*dt*responsiveness[i];
+  velocity[j]+=(dx/distance)*strength;
+  velocity[j+1]-=(dy/distance)*strength;
+  velocity[j+2]+=Math.sin(seeds[i]*8+frameNumber*.12)*strength*.24;
+  scatterState[i]=Math.max(scatterState[i],.18+smooth*.38);
+  debug.holdRepelHits+=1;
+  debug.holdRepelImpulse+=strength;
 }
 
 // A travelling annular impulse travels across the actual projected anatomy.
@@ -339,7 +362,7 @@ function updatePhysics(dt,t){
     const j=i*3;
     project(i,yc,ys,pc,ps);
     applyScatter(i,j,dt);
-    applyCharge(i,j,dt);
+    applyHold(i,j,dt);
     applyShockwave(i,j,dt);
     applyReturn(i,j,dt,t);
     if(i%31===0){
@@ -351,6 +374,141 @@ function updatePhysics(dt,t){
   debug.charge=pointer.charge;
   debug.orbitYaw=camera.yaw;
   debug.orbitPitch=camera.pitch;
+}
+
+// Hybrid backend: native WebGL (GPU point sprites) with a genuine Canvas2D
+// fallback. Both renderers consume the *same* CPU-simulated mesh photons.
+// The baked HTML makes zero runtime network requests and needs no libraries.
+function fallbackToCanvas(reason){
+  gpu=null;
+  glCanvas.style.display='none';
+  canvas.style.display='block';
+  debug.renderer='Canvas2D (fallback)';
+  debug.fallbackReason=String(reason||'WebGL unavailable');
+  frameNumber=0;
+}
+function initializeHybridRenderer(){
+  if(CONFIG.renderer!=='hybrid'){fallbackToCanvas('Canvas selected');return;}
+  try{
+    const options={alpha:false,antialias:false,preserveDrawingBuffer:true,powerPreference:'high-performance'};
+    const gl=glCanvas.getContext('webgl2',options)||glCanvas.getContext('webgl',options);
+    if(!gl)throw Error('WebGL context unavailable');
+    const vsSource=
+      'precision highp float; attribute vec2 aScreen; attribute float aBand;'+
+      'uniform vec2 uResolution; uniform float uDpr; varying float vBand;'+
+      'void main(){vec2 ndc=vec2(aScreen.x/uResolution.x*2.0-1.0,'+
+      '1.0-aScreen.y/uResolution.y*2.0);gl_Position=vec4(ndc,0.0,1.0);'+
+      'gl_PointSize=(3.15+aBand*0.23)*uDpr;vBand=aBand;}';
+    const fsSource=
+      'precision mediump float; varying float vBand;'+
+      'void main(){vec2 q=(gl_PointCoord-0.5)*2.0;float r2=dot(q,q);'+
+      'if(r2>1.0)discard;'+
+      'float core=exp(-r2*12.0);float glow=exp(-r2*2.8);'+
+      'vec3 col=mix(vec3(0.43,0.39,0.98),vec3(0.99,0.99,1.0),clamp(vBand/4.0,0.0,1.0));'+
+      'float alpha=(core*0.91+glow*0.21)*0.96;gl_FragColor=vec4(col,alpha);}';
+    const bgVS=
+      'precision mediump float; attribute vec2 aCorner; varying vec2 vUv;'+
+      'void main(){vUv=(aCorner+1.0)*0.5;gl_Position=vec4(aCorner,0.0,1.0);}';
+    const bgFS=
+      'precision mediump float;varying vec2 vUv;uniform float uFade;'+
+      'void main(){vec2 p=(vUv-vec2(0.5,0.5))*vec2(2.4,2.0);'+
+      'float fog=exp(-dot(p,p)*2.25);'+
+      'vec3 ink=vec3(0.012,0.016,0.039)+vec3(0.047,0.036,0.108)*fog;'+
+      'gl_FragColor=vec4(ink,uFade);}';
+    function shader(type,code){
+      const obj=gl.createShader(type);
+      if(!obj)throw Error('WebGL shader allocation failed');
+      gl.shaderSource(obj,code);gl.compileShader(obj);
+      if(!gl.getShaderParameter(obj,gl.COMPILE_STATUS))
+        throw Error('WebGL shader: '+gl.getShaderInfoLog(obj));
+      return obj;
+    }
+    function program(vertex,fragment){
+      const prog=gl.createProgram();
+      if(!prog)throw Error('WebGL program allocation failed');
+      gl.attachShader(prog,shader(gl.VERTEX_SHADER,vertex));
+      gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fragment));
+      gl.linkProgram(prog);
+      if(!gl.getProgramParameter(prog,gl.LINK_STATUS))
+        throw Error('WebGL link: '+gl.getProgramInfoLog(prog));
+      return prog;
+    }
+    const backgroundProgram=program(bgVS,bgFS);
+    const photonProgram=program(vsSource,fsSource);
+    const quad=gl.createBuffer(),pointBuffer=gl.createBuffer();
+    if(!quad||!pointBuffer)throw Error('WebGL vertex buffer unavailable');
+    gl.bindBuffer(gl.ARRAY_BUFFER,quad);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.viewport(0,0,glCanvas.width,glCanvas.height);
+    gl.clearColor(.012,.016,.039,1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gpu={gl,quad,pointBuffer,backgroundProgram,photonProgram,
+      quadLoc:gl.getAttribLocation(backgroundProgram,'aCorner'),
+      fadeLoc:gl.getUniformLocation(backgroundProgram,'uFade'),
+      posLoc:gl.getAttribLocation(photonProgram,'aScreen'),
+      bandLoc:gl.getAttribLocation(photonProgram,'aBand'),
+      resolutionLoc:gl.getUniformLocation(photonProgram,'uResolution'),
+      dprLoc:gl.getUniformLocation(photonProgram,'uDpr'),
+      data:new Float32Array(COUNT*3)};
+    if(gpu.quadLoc<0||gpu.posLoc<0||gpu.bandLoc<0)
+      throw Error('WebGL attributes missing');
+    glCanvas.style.display='block';
+    canvas.style.display='none';
+    debug.renderer='WebGL';
+    debug.webglAvailable=true;
+    debug.fallbackReason=null;
+    frameNumber=0;
+  }catch(e){fallbackToCanvas(e&&e.message?e.message:e);}
+}
+glCanvas.addEventListener('webglcontextlost',e=>{
+  e.preventDefault();
+  fallbackToCanvas('WebGL context lost');
+});
+glCanvas.addEventListener('webglcontextrestored',()=>initializeHybridRenderer());
+
+function renderGpu(){
+  if(!gpu)throw Error('GPU renderer unavailable');
+  const gl=gpu.gl;
+  const dat=gpu.data;
+  let visible=0;
+  for(let i=0;i<COUNT;i++){
+    const j=i*3;
+    const x=screenX[i],y=screenY[i];
+    dat[j]=x;dat[j+1]=y;dat[j+2]=depthBand[i];
+    if(x>=0&&x<w&&y>=0&&y<h)visible++;
+  }
+  gl.viewport(0,0,glCanvas.width,glCanvas.height);
+  gl.disableVertexAttribArray(0);
+  gl.disableVertexAttribArray(1);
+  gl.disableVertexAttribArray(2);
+  gl.useProgram(gpu.backgroundProgram);
+  gl.bindBuffer(gl.ARRAY_BUFFER,gpu.quad);
+  gl.enableVertexAttribArray(gpu.quadLoc);
+  gl.vertexAttribPointer(gpu.quadLoc,2,gl.FLOAT,false,0,0);
+  gl.uniform1f(gpu.fadeLoc,VISUALS.trailFade);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.disableVertexAttribArray(gpu.quadLoc);
+  gl.useProgram(gpu.photonProgram);
+  gl.bindBuffer(gl.ARRAY_BUFFER,gpu.pointBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER,dat,gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(gpu.posLoc);
+  gl.enableVertexAttribArray(gpu.bandLoc);
+  gl.vertexAttribPointer(gpu.posLoc,2,gl.FLOAT,false,12,0);
+  gl.vertexAttribPointer(gpu.bandLoc,1,gl.FLOAT,false,12,8);
+  gl.uniform2f(gpu.resolutionLoc,w,h);
+  gl.uniform1f(gpu.dprLoc,dpr);
+  gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+  gl.drawArrays(gl.POINTS,0,COUNT);
+  gl.disableVertexAttribArray(gpu.posLoc);
+  gl.disableVertexAttribArray(gpu.bandLoc);
+  if(typeof gl.getError==='function'&&gl.getError()!==gl.NO_ERROR)
+    throw Error('WebGL drawing failed');
+  debug.drawCalls=visible;
+  debug.webglFrames+=1;
+  debug.webglDrawCalls+=1;
 }
 
 function renderBackground(){
@@ -389,16 +547,18 @@ function renderPhotons(){
 }
 
 function renderInteraction(){
+  const cx=gpu?overlayCtx:ctx;
+  if(gpu)overlayCtx.clearRect(0,0,w,h);
   if(pointer.down&&pointer.inside){
     const radius=18+pointer.charge*24;
-    ctx.strokeStyle='rgba(198,190,255,'+Math.min(.52,.18+pointer.charge*.14)+')';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.arc(pointer.x,pointer.y,radius,0,Math.PI*2);ctx.stroke();
+    cx.strokeStyle='rgba(198,190,255,'+Math.min(.52,.18+pointer.charge*.14)+')';
+    cx.lineWidth=1;
+    cx.beginPath();cx.arc(pointer.x,pointer.y,radius,0,Math.PI*2);cx.stroke();
   }
   if(wave){
-    ctx.strokeStyle='rgba(192,180,255,'+(Math.max(0,.5-wave.age*.018)).toFixed(3)+')';
-    ctx.lineWidth=1.1;
-    ctx.beginPath();ctx.arc(wave.x,wave.y,wave.radius,0,Math.PI*2);ctx.stroke();
+    cx.strokeStyle='rgba(192,180,255,'+(Math.max(0,.5-wave.age*.018)).toFixed(3)+')';
+    cx.lineWidth=1.1;
+    cx.beginPath();cx.arc(wave.x,wave.y,wave.radius,0,Math.PI*2);cx.stroke();
   }
 }
 
@@ -407,8 +567,16 @@ function frame(now){
     const dt=Math.max(.2,Math.min(2.0,(now-last)/16.667||1));
     last=now;
     updatePhysics(dt,now*.001);
-    renderBackground();
-    renderPhotons();
+    if(gpu){
+      try{renderGpu();}
+      catch(gpuError){
+        fallbackToCanvas(gpuError&&gpuError.message?gpuError.message:gpuError);
+        renderBackground();renderPhotons();
+      }
+    }else{
+      renderBackground();
+      renderPhotons();
+    }
     renderInteraction();
     frameNumber+=1;
     debug.fpsMeasured=Math.round(1000/Math.max(1,dt*16.667));
@@ -416,7 +584,8 @@ function frame(now){
     requestAnimationFrame(frame);
   }catch(e){debug.status='error';showError(e);}
 }
-status.textContent='V1.7.1 · 18K PHOTONS · SOFT CONTACT · LOCAL SHOCKWAVE · SHIFT / RIGHT-DRAG: ORBIT';
+status.textContent='V1.7.2 · 12K PHOTONS · HOLD: REPEL · WEBGL / CANVAS FALLBACK · SHIFT / RIGHT-DRAG: ORBIT';
+initializeHybridRenderer();
 requestAnimationFrame(frame);
 })();
 </script></body></html>

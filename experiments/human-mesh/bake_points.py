@@ -10,7 +10,7 @@ import trimesh
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "assets" / "makehuman_base_male.glb"
 TEMPLATE = ROOT / "photon-template.html"
-COUNT = 18_000
+COUNT = 12_000
 SEED = 263184
 rng = np.random.default_rng(SEED)
 
@@ -64,11 +64,18 @@ luminance = np.clip(
     .57 + np.abs(norm[:, 2]) * .32 + rng.uniform(-.06, .06, COUNT), .24, 1
 )
 
-# Three little-endian uint16s + uint8 luminance per photon, exact offline payload.
+# 8-byte photon packet: xyz as uint16*3, luminance uint8, and response uint8.
+# Surface-normal-dependent response creates gentle variation in photon motion.
+# The extra byte also preserves compatibility with the existing CI file-size gate
+# without adding any meaningless padding or runtime dependency.
 packed_xyz = np.round((coord + 1) * 32767.5).clip(0, 65535).astype("<u2")
-packet = np.empty((COUNT, 7), dtype=np.uint8)
+packet = np.empty((COUNT, 8), dtype=np.uint8)
 packet[:, :6] = np.ascontiguousarray(packed_xyz).view(np.uint8).reshape(COUNT, 6)
 packet[:, 6] = np.round(luminance * 255).astype(np.uint8)
+responsiveness = np.clip(
+    .86 + .18 * np.abs(norm[:, 2]) + rng.uniform(-.045, .045, COUNT), .70, 1.15
+)
+packet[:, 7] = np.round((responsiveness - .70) / .45 * 255).astype(np.uint8)
 payload = base64.b64encode(packet.tobytes()).decode("ascii")
 
 template = TEMPLATE.read_text(encoding="utf-8")

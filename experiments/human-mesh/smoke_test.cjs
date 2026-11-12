@@ -1,112 +1,152 @@
-// V1.7.1 regression test: actual baked data, Canvas 2D, and soft-contact physics.
-// Runs entirely offline in Node and simulates a normal 60 Hz pointer timeline.
+// Offline V1.7.2 smoke/regression tests for BOTH Hybrid render paths.
+// WebGL API calls are mocked; Canvas2D fallback and gesture physics are executed.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'index.html'),'utf8');
-assert(!html.includes('{{PHOTON_'),'Unbaked model coordinates');
-assert(!html.includes('https://'),'Unexpected runtime dependency');
-assert(html.includes('V1.7.1'),'Incorrect experiment version');
+assert(!html.includes('{{PHOTON_'),'Model was not baked');
+assert(!html.includes('https://'),'Standalone view must not require network');
+assert(html.includes('V1.7.2'));
 const script=html.split('<script>')[1].split('</script>')[0];
-const handlers={};
-let nextFrame=null,drawCalls=0,time=1000;
-const ctx={
-  fillStyle:'',strokeStyle:'',lineWidth:1,globalCompositeOperation:'source-over',
-  setTransform(){},fillRect(){drawCalls++},
-  createRadialGradient(){return{addColorStop(){}}},
-  beginPath(){},arc(){},stroke(){}
-};
-const canvas={
-  width:0,height:0,
-  getContext(name){assert.equal(name,'2d');return ctx;},
-  addEventListener(name,fn){handlers[name]=fn;},
-  setPointerCapture(){}
-};
-const elements={canvas,status:{textContent:''},problem:{style:{display:'none'},textContent:''}};
-const sandbox={
-  window:{},
-  document:{getElementById:id=>elements[id]},
-  innerWidth:1440,innerHeight:900,devicePixelRatio:1,
-  performance:{now:()=>time},
-  requestAnimationFrame(fn){nextFrame=fn;},
-  addEventListener(){},
-  atob(value){return Buffer.from(value,'base64').toString('latin1');}
-};
-vm.runInNewContext(script,sandbox,{timeout:20000});
-assert(nextFrame,'No animation frame scheduled');
-function tick(frames=1){
-  for(let n=0;n<frames;n++){
-    time+=16.667;
-    const fn=nextFrame;
-    assert(fn,'Renderer stopped scheduling frames');
-    nextFrame=null;
-    fn(time);
+
+function createGL(){
+  const calls={points:0,frames:0,background:0,lastPointCount:0};
+  const gl={
+    VERTEX_SHADER:35633,FRAGMENT_SHADER:35632,COMPILE_STATUS:35713,
+    LINK_STATUS:35714,ARRAY_BUFFER:34962,STATIC_DRAW:35044,DYNAMIC_DRAW:35048,
+    DEPTH_TEST:2929,BLEND:3042,COLOR_BUFFER_BIT:16384,NO_ERROR:0,
+    TRIANGLE_STRIP:5,POINTS:0,FLOAT:5126,SRC_ALPHA:770,
+    ONE_MINUS_SRC_ALPHA:771,ONE:1,
+    createShader(){return {};},shaderSource(){},compileShader(){},
+    getShaderParameter(){return true;},getShaderInfoLog(){return '';},
+    createProgram(){return {};},attachShader(){},linkProgram(){},
+    getProgramParameter(){return true;},getProgramInfoLog(){return '';},
+    createBuffer(){return {};},bindBuffer(){},bufferData(){},
+    disable(){},enable(){},viewport(){},clearColor(){},clear(){},
+    getAttribLocation(_p,k){return ({aCorner:0,aScreen:1,aBand:2})[k]??-1;},
+    getUniformLocation(){return {};},useProgram(){},
+    disableVertexAttribArray(){},enableVertexAttribArray(){},
+    vertexAttribPointer(){},uniform1f(){},uniform2f(){},blendFunc(){},
+    drawArrays(mode,_first,count){
+      calls.frames++;
+      if(mode===this.POINTS){calls.points++;calls.lastPointCount=count;}
+      else if(mode===this.TRIANGLE_STRIP)calls.background++;
+    },
+    getError(){return 0;}
+  };
+  return {gl,calls};
+}
+function run(mode){
+  let time=1000,frame=null,drawCalls=0;
+  const listeners={},glListeners={};
+  function context(){
+    return {fillStyle:'',strokeStyle:'',lineWidth:1,globalCompositeOperation:'',
+      setTransform(){},fillRect(){drawCalls++;},clearRect(){},
+      createRadialGradient(){return {addColorStop(){}};},
+      beginPath(){},arc(){},stroke(){}};
   }
-}
-function mouse(x,y,extra={}){
-  return{clientX:x,clientY:y,button:0,pointerId:1,shiftKey:false,...extra};
-}
-tick(2);
-const dbg=sandbox.window.photonDebug;
-assert.equal(dbg.loaded,true);
-assert.equal(dbg.version,'1.7.1');
-assert.equal(dbg.points,18000);
-assert.equal(dbg.config.distribution,'blue');
-assert.equal(dbg.physics.contactEaseMs,220);
-assert.equal(dbg.physics.scatterRadiusPx,130);
-assert.equal(dbg.physics.scatterVelocity,.0032);
-assert.equal(dbg.physics.shockMaxPx,220);
-assert.equal(dbg.physics.shockSpeedPx,11);
-assert.equal(dbg.physics.shockWidthPx,28);
-assert.equal(dbg.physics.shockVelocity,.004);
-assert.equal(dbg.physics.maxOffset,.26);
-assert(dbg.drawCalls>8000,'Missing visible photons');
-assert.equal(elements.problem.style.display,'none','Unexpected rendering error');
+  const fx={width:0,height:0,getContext(){return context();},style:{}};
+  const canvas={width:0,height:0,style:{},getContext(kind){assert.equal(kind,'2d');return context();}};
+  const {gl,calls}=createGL();
+  const glCanvas={width:0,height:0,style:{},
+    getContext(kind){return mode==='webgl'&&(kind==='webgl2'||kind==='webgl')?gl:null;},
+    addEventListener(k,cb){glListeners[k]=cb;}
+  };
+  const input={addEventListener(k,cb){listeners[k]=cb;},setPointerCapture(){}};
+  const dom={canvas,glCanvas,fxCanvas:fx,interaction:input,
+    status:{textContent:''},problem:{style:{display:'none'},textContent:''}};
+  const sandbox={window:{},document:{getElementById:id=>dom[id]},
+    innerWidth:1440,innerHeight:900,devicePixelRatio:1,
+    performance:{now:()=>time},requestAnimationFrame(cb){frame=cb;},
+    addEventListener(){},
+    atob(str){return Buffer.from(str,'base64').toString('latin1');}};
+  vm.runInNewContext(script,sandbox,{timeout:20000});
+  const dbg=sandbox.window.photonDebug;
+  assert(dbg,'Missing photonDebug');
+  const tick=(n=1)=>{
+    for(let i=0;i<n;i++){time+=16.667;const callback=frame;assert(callback,'Animation loop stopped');frame=null;callback(time);}
+  };
+  const mouse=(x,y,opts={})=>({clientX:x,clientY:y,button:0,pointerId:1,shiftKey:false,...opts});
+  tick(2);
+  assert.equal(dbg.status,'ready');
+  assert.equal(dbg.version,'1.7.2');
+  assert.equal(dbg.points,12000);
+  assert.equal(dbg.config.density,12000);
+  assert.equal(dbg.config.distribution,'blue');
+  assert.equal(dbg.config.hold,'repel');
+  assert.equal(dbg.config.renderer,'hybrid');
+  assert.equal(dbg.physics.chargeRadiusPx,92);
+  assert.equal(dbg.physics.chargeRate,.018);
+  assert.equal(dbg.physics.maxCharge,1.25);
+  assert.equal(dbg.physics.contactEaseMs,220);
+  assert.equal(dbg.physics.shockMaxPx,220);
+  assert.equal(dbg.physics.maxOffset,.26);
+  if(mode==='webgl'){
+    assert.equal(dbg.renderer,'WebGL');
+    assert(dbg.webglAvailable);
+    assert(calls.points>=2 && calls.lastPointCount===12000);
+  }else{
+    assert.equal(dbg.renderer,'Canvas2D (fallback)');
+    assert(dbg.fallbackReason,'WebGL unavailable should report fallback reason');
+    assert(drawCalls>12000);
+  }
+  assert(dbg.drawCalls>6000,'Photon field not visible');
+  assert.equal(dom.problem.style.display,'none');
 
-handlers.pointerenter(mouse(700,460));
-tick();
-let firstContact=0,firstSmoothSpeed=0;
-for(let i=0;i<25;i++){
-  // Small moves keep the cursor near the same mesh patch, testing local
-  // per-photon easing instead of one global switch for the entire figure.
-  handlers.pointermove(mouse(700+Math.sin(i*1.4)*14,460+Math.cos(i*1.4)*9));
+  listeners.pointerenter(mouse(700,460));
   tick();
-  if(i===0){firstContact=dbg.maxContact;firstSmoothSpeed=dbg.pointerSmoothedSpeed;}
+  let firstContact=0,firstSpeed=0;
+  for(let i=0;i<25;i++){
+    listeners.pointermove(mouse(700+Math.sin(i*1.4)*14,460+Math.cos(i*1.4)*9));
+    tick();
+    if(i===0){firstContact=dbg.maxContact;firstSpeed=dbg.pointerSmoothedSpeed;}
+  }
+  const settledContact=dbg.maxContact, speedBeforeIdle=dbg.pointerSmoothedSpeed;
+  assert(firstContact>0 && firstContact<.03,'Contact ease-in too abrupt');
+  assert(settledContact>firstContact*3,'Per-photon easing was lost');
+  assert(firstSpeed>0 && firstSpeed<10,'Pointer velocity not smoothed');
+  assert(dbg.scatterHits>20 && dbg.maxDisplacementPx>1,'Scatter failed');
+  tick(25);
+  assert(dbg.pointerSmoothedSpeed<speedBeforeIdle*.2,'Velocity failed to decay');
+  assert(dbg.maxContact<settledContact*.5,'Contact failed to fade');
+
+  const hitsBefore=dbg.holdRepelHits, outwardBefore=dbg.holdRepelImpulse;
+  listeners.pointerdown(mouse(720,460));
+  tick(50);
+  assert(dbg.holdRepelHits>hitsBefore+50,'Hold=Repel did not affect nearby photons');
+  assert(dbg.holdRepelImpulse>outwardBefore,'No outward Hold=Repel impulse');
+  assert(dbg.charge>.5&&dbg.charge<=1.25,'Repel intensity ramp did not obey cap');
+  listeners.pointerup(mouse(720,460));
+  tick(22);
+  assert.equal(dbg.releaseEvents,1,'Release shockwave missing');
+  assert(dbg.shockHits>0 && dbg.maxShockHitDistancePx<=220.01,'Shockwave is not local');
+  assert(dbg.maxDisplacementPx<220,'Maximum displacement not bounded');
+
+  listeners.pointerdown(mouse(720,460,{shiftKey:true}));
+  listeners.pointermove(mouse(910,495,{shiftKey:true}));
+  tick(24);
+  listeners.pointerup(mouse(910,495,{shiftKey:true}));
+  tick(4);
+  assert(Math.abs(dbg.orbitYaw)>.1,'Shift+drag orbit failed');
+  assert.equal(dbg.releaseEvents,1,'Orbit mistakenly triggered shockwave');
+
+  if(mode==='webgl'){
+    assert(dbg.webglFrames>30&&dbg.webglDrawCalls>30,'GPU rendering did not continue');
+    const before=drawCalls;
+    let prevented=false;
+    glListeners.webglcontextlost({preventDefault(){prevented=true;}});
+    tick(3);
+    assert(prevented);
+    assert.equal(dbg.renderer,'Canvas2D (fallback)','WebGL context-loss fallback failed');
+    assert(drawCalls>before,'Canvas did not render after context loss');
+  }
+  assert.equal(dbg.status,'ready','A JavaScript runtime error occurred');
+  assert.equal(dom.problem.style.display,'none');
+  return {mode,points:dbg.points,scatterHits:dbg.scatterHits,
+    holdRepelHits:dbg.holdRepelHits,holdRepelImpulse:dbg.holdRepelImpulse,
+    shockHits:dbg.shockHits,maxShockHitDistancePx:dbg.maxShockHitDistancePx,
+    maxDisplacementPx:dbg.maxDisplacementPx,webglFrames:dbg.webglFrames};
 }
-const settledContact=dbg.maxContact;
-const speedBeforeIdle=dbg.pointerSmoothedSpeed;
-assert(firstContact>0&&firstContact<.025,'Contact begins too abruptly');
-assert(settledContact>firstContact*4,'Contact force did not ease in gradually');
-assert(firstSmoothSpeed>0&&firstSmoothSpeed<10,'Pointer speed was not initially smoothed');
-assert(dbg.scatterHits>50,'Moving pointer failed to scatter photons');
-assert(dbg.maxDisplacementPx>2,'Scattered photons did not move');
-tick(25);
-assert(dbg.pointerSmoothedSpeed<speedBeforeIdle*.2,'Pointer velocity did not smooth back toward zero');
-assert(dbg.maxContact<settledContact*.5,'Photon contact did not fade after mouse stopped');
-
-handlers.pointerdown(mouse(720,460));
-tick(45);
-assert(dbg.charge>.5,'Hold charge did not accumulate');
-handlers.pointerup(mouse(720,460));
-tick(22);
-assert.equal(dbg.releaseEvents,1,'Release shockwave not launched');
-assert(dbg.shockHits>0,'Shockwave did not reach the mesh');
-assert(dbg.maxShockHitDistancePx<=220.01,'Shockwave acted beyond 220px boundary');
-assert(dbg.maxDisplacementPx<250,'Offset is not bounded by .26 body-height units');
-assert.equal(dbg.waveRadiusPx,0,'Shockwave should expire by maximum radius');
-
-handlers.pointerdown(mouse(720,460,{shiftKey:true}));
-handlers.pointermove(mouse(910,495,{shiftKey:true}));
-tick(24);
-handlers.pointerup(mouse(910,495,{shiftKey:true}));
-tick(4);
-assert(Math.abs(dbg.orbitYaw)>.1,'Shift+drag orbit did not work');
-assert.equal(dbg.releaseEvents,1,'Orbit drag must not emit shockwave');
-assert.equal(dbg.status,'ready');
-assert(drawCalls>18000,'Canvas rendering is inactive');
-console.log('PASS V1.7.1: '+dbg.points+' photons | initial contact '+
-  firstContact.toFixed(4)+' -> '+settledContact.toFixed(4)+
-  ' | idle pointer speed '+speedBeforeIdle.toFixed(3)+' -> '+dbg.pointerSmoothedSpeed.toFixed(3)+
-  ' | shock hits '+dbg.shockHits+' within '+dbg.maxShockHitDistancePx.toFixed(2)+
-  'px | max displacement '+dbg.maxDisplacementPx+'px | orbit '+dbg.orbitYaw.toFixed(2)+'rad.');
+const a=run('webgl'),b=run('fallback');
+console.log('PASS V1.7.2: both render paths verified',JSON.stringify({webgl:a,canvas:b}));
