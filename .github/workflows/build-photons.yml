@@ -39,13 +39,17 @@ jobs:
           assert len(s)>150000, len(s)
           assert '{{PHOTON_DATA}}' not in s
           assert 'density:18000' in s
+          assert 'V1.7.1' in s
+          assert 'contactEaseMs:220' in s
+          assert 'shockMaxPx:220' in s
+          assert 'maxOffset:.26' in s
           assert 'window.photonDebug' in s
           assert 'https://' not in s, 'Viewer must not depend on CDNs or runtime GLB fetches'
-          Path('/tmp/photon-v1-7.js').write_text(s.split('<script>')[1].split('</script>')[0])
+          Path('/tmp/photon-v1-7-1.js').write_text(s.split('<script>')[1].split('</script>')[0])
           print('Validated offline HTML length:',len(s))
           PY
-          node --check /tmp/photon-v1-7.js
-      - name: Simulate Move Scatter, Hold Charge, Release Shockwave, and Orbit
+          node --check /tmp/photon-v1-7-1.js
+      - name: Regression tests for 220ms contact easing, pointer smoothing, shockwave and orbit
         run: node experiments/human-mesh/smoke_test.cjs
       - name: Commit built independent experimental viewer
         shell: bash
@@ -54,7 +58,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add experiments/human-mesh/index.html
           if ! git diff --cached --quiet; then
-            git commit -m 'Build V1.7 18k blue-noise photons and scatter physics'
+            git commit -m 'Bake V1.7.1 soft-contact photons with bounded local shockwave'
             git pull --rebase origin main
             git push origin HEAD:main
           fi

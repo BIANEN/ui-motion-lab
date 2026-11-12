@@ -5,9 +5,9 @@ A set of independent interactive web-art experiments. The project root and the h
 ## Live pages
 
 - [Original V1.2 — Isolated Light](https://bianen.github.io/ui-motion-lab/) — original standalone light field; unaffected by V1.7.
-- [V1.7 — Human Photon Field](https://bianen.github.io/ui-motion-lab/experiments/human-mesh/) — anatomically sourced 3D particle sculpture in one offline-capable HTML page.
+- [V1.7.1 — Human Photon Field](https://bianen.github.io/ui-motion-lab/experiments/human-mesh/) — anatomically sourced 3D particle sculpture in one offline-capable HTML page.
 
-## V1.7 approved configuration
+## V1.7.1 approved configuration
 
 | Parameter | Selection |
 |---|---|
@@ -43,3 +43,17 @@ The build-photons.yml GitHub workflow bakes positions, checks syntax, simulates 
 ### V1.7 release verification
 
 The standalone renderer is baked to 18,000 points and has passed GitHub Actions syntax and pointer-physics smoke checks. The physics module bounds displacement to 0.38 normalized body-height units; CI's scripted interaction measured approximately 177 px maximum displacement in a 1440×900 test view. The original root/index.html is unchanged.
+
+### V1.7.1 interaction refinement — 2026-11-12
+
+The model, 18,000 blue-noise photon samples, palette, Canvas renderer, slow return and original main page remain unchanged.
+
+- **Soft contact:** a per-photon exponential contact envelope ramps outward force in over **220 ms** instead of applying a full impulse on initial contact; fade-out takes 95 ms.
+- **Pointer velocity filtering:** measured pointer speed is frame-rate normalized and smoothed by a **95 ms** exponential filter; raw movement is not applied directly. Stale motion starts decaying after 75 ms without an event.
+- **Move scatter:** radius **130 px**, outward speed impulse **0.0032**, smoother radial influence.
+- **Release shockwave:** maximum impact radius **220 px**, speed **11 px / 60-Hz reference frame**, annular width **28 px**, velocity strength **0.004**. A strict 220-pixel boundary prevents force beyond that radius.
+- **Displacement limit:** reduced from 0.38 to **0.26** normalized model height, keeping the figure intact after repeated gestures.
+- **Return:** existing slow spring and damping rates preserved.
+- CI tests exercise contact onset versus steady contact, cursor idle decay, local shockwave radius, orbit, original body data and standalone offline rendering.
+
+To inspect running diagnostics, use `window.photonDebug` in a browser's developer console.
