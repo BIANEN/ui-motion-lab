@@ -1,42 +1,41 @@
 # Museum of Fields — Interactive Art Laboratory
 
-A collection of web-based particle and spatial interaction experiments.
+A set of independent interactive web-art experiments. The project root and the human-mesh experiment are separate.
 
 ## Live pages
 
-- [V1.2 — Isolated Light](https://bianen.github.io/ui-motion-lab/) — original light sculpture.
-- [Human Mesh Photon Study](https://bianen.github.io/ui-motion-lab/experiments/human-mesh/) — a real 3D human mesh sampled into tens of thousands of dynamic luminous particles.
+- [Original V1.2 — Isolated Light](https://bianen.github.io/ui-motion-lab/) — original standalone light field; unaffected by V1.7.
+- [V1.7 — Human Photon Field](https://bianen.github.io/ui-motion-lab/experiments/human-mesh/) — anatomically sourced 3D particle sculpture in one offline-capable HTML page.
 
-## Human mesh experiment
+## V1.7 approved configuration
 
-The **primary mesh** is locally hosted as `experiments/human-mesh/assets/makehuman_base_male.glb` (4.5 MB, ~109k triangles), a MakeHuman-derived neutral adult male base model from Innerscene, published CC0:
-https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89
+| Parameter | Selection |
+|---|---|
+| 3D source | MakeHuman |
+| Photons | 18,000 |
+| Surface distribution | Approximate blue noise (Poisson-rejection) |
+| Particle size | Fine |
+| Lighting / color | Halo; cool white and violet |
+| Move | Scatter outward velocity |
+| Hold | Charge energy |
+| Release | Expanding Shockwave |
+| Return | Slow, inertia-based |
+| Trails | Short, translucent Canvas history |
+| Rotation | 360° orbit (Shift + left drag, or right drag) |
+| Background | Ambient violet-black |
+| Renderer | Offline Canvas 2D |
 
-The **local fallback** in `experiments/human-mesh/assets/human_posed.glb` is the CC0 Quaternius humanoid prepared by UMRAM-Bilkent:
-https://github.com/UMRAM-Bilkent/supine-human-model
+Normal pointer movement scatters particles. Hold the **left mouse button** to accumulate charge; releasing launches a travelling shockwave. To keep orbit separate from Charge, **Shift + left drag** or **right drag** rotates the body; mouse wheel zooms. Touch supports Move / Hold / Release.
 
-Model is sampled by triangle area using Three.js `MeshSurfaceSampler`, not by drawing ellipses or stick-figure proportions.
+The viewer is generated, not hand-edited. The bake_points.py script loads a real CC0 MakeHuman-derived GLB, samples its triangle surface with trimesh.sample.sample_surface_even using approximate blue-noise spacing, then packs all 18,000 photon positions and surface-luminance bytes into the experimental index.html. The page needs no runtime model file, WebGL, Three.js, npm, or network requests.
 
-The scene uses self-contained original particle shaders, and only the top heading is shown.
+The implementation exposes modular CONFIG, PHYSICS, and VISUALS, plus dedicated applyScatter, applyCharge, applyShockwave, applyReturn, project, and renderPhotons functions. It reports an inspectable window.photonDebug object.
 
-Controls:
-- Move pointer: disturb local photons
-- Hold: gather and stabilize photons
-- Release: ripple dispersion, then re-form
-- Mouse wheel: zoom
-- On mobile: touch/hold/release
+### Sources and licenses
 
-The 3D body models are stored in this repository. Three.js modules are loaded from jsDelivr and require network access.
+- Primary local GLB: experiments/human-mesh/assets/makehuman_base_male.glb (4.5 MB, approximately 109,064 triangles), a CC0 MakeHuman-derived male A-pose mesh from [Innerscene](https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89).
+- Backup mesh: experiments/human-mesh/assets/human_posed.glb, a CC0 Quaternius humanoid from [UMRAM-Bilkent](https://github.com/UMRAM-Bilkent/supine-human-model).
 
-## Publishing
+### Build and deployment
 
-`.github/workflows/pages.yml` publishes the root of `main` via GitHub Pages.
-
-## License notes
-
-The locally bundled fallback model is CC0-1.0 (source above).
-Original site layout, particle logic, and code are experimental.
-
-### Photon viewer reliability update
-
-The human-mesh experiment now contains **42,000 3D surface-sampled points baked into a single standalone HTML page**. It does not depend on runtime Three.js CDN access or GLB downloads. Build source: `experiments/human-mesh/bake_points.py`, generated using `.github/workflows/build-photons.yml`.
+The build-photons.yml GitHub workflow bakes positions, checks syntax, simulates pointer physics with smoke_test.cjs, then commits the independent experiment page. The pages.yml workflow publishes the entire repository on GitHub Pages. The root index.html is never changed by the experiment build.
