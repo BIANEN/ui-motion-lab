@@ -39,3 +39,7 @@ The implementation exposes modular CONFIG, PHYSICS, and VISUALS, plus dedicated 
 ### Build and deployment
 
 The build-photons.yml GitHub workflow bakes positions, checks syntax, simulates pointer physics with smoke_test.cjs, then commits the independent experiment page. The pages.yml workflow publishes the entire repository on GitHub Pages. The root index.html is never changed by the experiment build.
+
+### V1.7 release verification
+
+The standalone renderer is baked to 18,000 points and has passed GitHub Actions syntax and pointer-physics smoke checks. The physics module bounds displacement to 0.38 normalized body-height units; CI's scripted interaction measured approximately 177 px maximum displacement in a 1440×900 test view. The original root/index.html is unchanged.
