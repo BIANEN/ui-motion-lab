@@ -1,5 +1,10 @@
 # FAV-001 · Curve Gallery
 
+![Curve Gallery 三维曲线图片画廊](https://tympanus.net/codrops/wp-content/uploads/2026/07/curvegallery_cover.png)
+
+> 图片来源：Codrops / Gaspard Hedde 教程封面；本仓库仅引用外部链接，未重新上传第三方图片。图片及网站元素不自动获得商用授权。
+
+
 **类型**：公开教程 Demo / 3D 摄影机路径 / WebGL 画廊  
 **用途**：Museum of Fields 的三维展览漫游、滚动相机练习  
 **标签**：`threejs` `gsap` `blender` `scroll` `camera-path` `gallery`

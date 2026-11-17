@@ -1,5 +1,10 @@
 # FAV-002 · When Cells Collide
 
+![Novacellix 粉紫色细胞状有机背景与页面标题](https://mesh3d.gallery/_next/image?q=75&url=https%3A%2F%2Fcdn.mesh3d.gallery%2Fpreviews%2F1775211126309-zzs0bhi-unseen.co-labs-cellular-thumb.webp&w=3840)
+
+> 图片来源：mesh3d.gallery 对 Unseen Studio Cellular Demo 的预览截图；本仓库仅引用外部链接，未重新上传第三方图片。图片及网站元素不自动获得商用授权。
+
+
 **创作者**：Unseen Studio  
 **文章时间**：2025-09-11  
 **类型**：有机粒子 / 物理碰撞 / 流体视觉 / WebGL 实验  

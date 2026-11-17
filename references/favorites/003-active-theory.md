@@ -1,5 +1,10 @@
 # FAV-003 · Active Theory
 
+![Active Theory 黑暗背景、中心发光图形与散落粒子](https://cdn.csswinner.com/images/winners/2024/jan/1889360200.jpg)
+
+> 图片来源：CSS Winner 对 Active Theory V6 的 2024 年截图（非当前实时页面）；本仓库仅引用外部链接，未重新上传第三方图片。图片及网站元素不自动获得商用授权。
+
+
 **类型**：高端沉浸式品牌网站 / WebGL / 实时数字艺术 / 空间叙事  
 **技术关键词**：`hydra` `webgl` `gpgpu` `3d-gallery` `scroll-navigation` `cinematic-motion`
 

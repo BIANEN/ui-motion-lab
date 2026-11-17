@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "updated_at": "2026-11-17",
   "collection": "UI Motion Lab Favorites",
   "items": [
@@ -16,7 +16,12 @@
       "archive_url": "https://github.com/BIANEN/ui-motion-lab/tree/reference/curve-gallery-archive/references/curve-gallery",
       "license_status": "Codrops downloadable demo MIT default; upstream repo standalone LICENSE absent; media separately licensed",
       "reuse": "conditional",
-      "notes": "001-curve-gallery.md"
+      "notes": "001-curve-gallery.md",
+      "image_url": "https://tympanus.net/codrops/wp-content/uploads/2026/07/curvegallery_cover.png",
+      "image_alt": "Curve Gallery 三维曲线图片画廊",
+      "image_source": "Codrops / Gaspard Hedde 教程封面",
+      "image_type": "tutorial-cover",
+      "image_hosting": "external-reference-only"
     },
     {
       "id": "FAV-002",
@@ -30,7 +35,12 @@
       "demo_url": "https://unseen.co/labs/cellular/",
       "license_status": "Full project source and reuse license not verified",
       "reuse": "reimplement",
-      "notes": "002-when-cells-collide.md"
+      "notes": "002-when-cells-collide.md",
+      "image_url": "https://mesh3d.gallery/_next/image?q=75&url=https%3A%2F%2Fcdn.mesh3d.gallery%2Fpreviews%2F1775211126309-zzs0bhi-unseen.co-labs-cellular-thumb.webp&w=3840",
+      "image_alt": "Novacellix 粉紫色细胞状有机背景与页面标题",
+      "image_source": "mesh3d.gallery 对 Unseen Studio Cellular Demo 的预览截图",
+      "image_type": "third-party-screenshot",
+      "image_hosting": "external-reference-only"
     },
     {
       "id": "FAV-003",
@@ -43,7 +53,43 @@
       "source_url": "https://activetheory.net/",
       "license_status": "No permission verified for direct use of production website/source/assets",
       "reuse": "inspiration",
-      "notes": "003-active-theory.md"
+      "notes": "003-active-theory.md",
+      "image_url": "https://cdn.csswinner.com/images/winners/2024/jan/1889360200.jpg",
+      "image_alt": "Active Theory 黑暗背景、中心发光图形与散落粒子",
+      "image_source": "CSS Winner 对 Active Theory V6 的 2024 年截图（非当前实时页面）",
+      "image_type": "archival-screenshot",
+      "image_hosting": "external-reference-only"
+    },
+    {
+      "id": "FAV-004",
+      "title": "Magical Reflections",
+      "category": [
+        "webxr",
+        "immersive museum",
+        "3D painting",
+        "lightmaps",
+        "cinematic",
+        "virtual gallery"
+      ],
+      "source_url": "https://www.makemepulse.com/news/magical-reflections-a-webxr-experience-powered-by-nanogl",
+      "case_study_url": "https://www.makemepulse.com/case-study/alte-nationalgalerie-magical-reflections",
+      "technology": [
+        "NanoGL",
+        "WebXR",
+        "Vue",
+        "XState",
+        "Blender",
+        "Houdini",
+        "PBR"
+      ],
+      "license_status": "Museum source/assets are not open-licensed; NanoGL framework is separate and its license must be checked",
+      "reuse": "reimplement",
+      "notes": "004-magical-reflections.md",
+      "image_url": "https://images.prismic.io/makemepulse/d614e615-f502-4429-bd2b-ea3891ed041a_museum.png?auto=compress%2Cformat",
+      "image_alt": "Magical Reflections 白色拱廊数字艺术馆入口",
+      "image_source": "Makemepulse 官方文章中的 Magical Reflections 展厅图片",
+      "image_type": "official-image",
+      "image_hosting": "external-reference-only"
     }
   ]
 }
