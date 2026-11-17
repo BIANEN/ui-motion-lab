@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "updated_at": "2026-11-17",
   "collection": "UI Motion Lab Favorites",
   "items": [
@@ -88,6 +88,34 @@
       "image_url": "https://images.prismic.io/makemepulse/d614e615-f502-4429-bd2b-ea3891ed041a_museum.png?auto=compress%2Cformat",
       "image_alt": "Magical Reflections 白色拱廊数字艺术馆入口",
       "image_source": "Makemepulse 官方文章中的 Magical Reflections 展厅图片",
+      "image_type": "official-image",
+      "image_hosting": "external-reference-only"
+    },
+    {
+      "id": "FAV-005",
+      "title": "Earthlight",
+      "creator": "Max Vyshniakov",
+      "category": [
+        "raw WebGL",
+        "GLSL",
+        "earth",
+        "astronomy",
+        "space",
+        "atmosphere",
+        "camera",
+        "science visualization"
+      ],
+      "source_url": "https://earthlight.maxvyshniakov.com/",
+      "saved_view_url": "https://earthlight.maxvyshniakov.com/?t=1770.92&lens=0.5&epoch=2026-11-17T13%3A47%3A09.749Z&flight=free&position=0.92773528%2C-0.44039582%2C-0.29197542&orientation=-0.5376211782%2C-0.4924745487%2C0.6104921749%2C-0.3094052230",
+      "code_url": "https://github.com/maxvyshniakov/earthlight",
+      "project_url": "https://maxvyshniakov.com/work/earthlight/",
+      "license_url": "https://github.com/maxvyshniakov/earthlight/blob/main/LICENSE",
+      "license_status": "Code MIT © 2026 Max Vyshniakov; NASA/ESA imagery, star catalogs, fonts, terrain and data have separate terms in NOTICE.md",
+      "reuse": "code-mit-assets-separate",
+      "notes": "005-earthlight.md",
+      "image_url": "https://raw.githubusercontent.com/maxvyshniakov/earthlight/b6fd3c12b6be0bb03fd557a3258fb4f002e747b0/docs/media/aurora.webp",
+      "image_alt": "Official Earthlight screenshot showing Earth limb, aurora and Milky Way",
+      "image_source": "Max Vyshniakov official GitHub docs/media/aurora.webp (commit b6fd3c12b6be0bb03fd557a3258fb4f002e747b0)",
       "image_type": "official-image",
       "image_hosting": "external-reference-only"
     }
