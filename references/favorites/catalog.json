@@ -82,7 +82,7 @@
         "Houdini",
         "PBR"
       ],
-      "license_status": "Museum source/assets are not open-licensed; NanoGL framework is separate and its license must be checked",
+      "license_status": "Magical Reflections museum code/assets not open-licensed; NanoGL framework is GPL-2.0 (not MIT), with copyleft obligations",
       "reuse": "reimplement",
       "notes": "004-magical-reflections.md",
       "image_url": "https://images.prismic.io/makemepulse/d614e615-f502-4429-bd2b-ea3891ed041a_museum.png?auto=compress%2Cformat",
