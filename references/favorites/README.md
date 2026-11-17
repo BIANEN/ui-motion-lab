@@ -13,6 +13,8 @@
 | <img src="https://cdn.csswinner.com/images/winners/2024/jan/1889360200.jpg" alt="Active Theory 黑暗背景、中心发光图形与散落粒子" width="185" /> | **[FAV-003 · Active Theory](003-active-theory.md)** <br/> Hydra / WebGL / 3D Hero / 电影叙事 | 高端品牌官网、空间 UI、场景切换 | 原站代码和素材不可直接使用 |
 | <img src="https://images.prismic.io/makemepulse/d614e615-f502-4429-bd2b-ea3891ed041a_museum.png?auto=compress%2Cformat" alt="Magical Reflections 白色拱廊数字艺术馆入口" width="185" /> | **[FAV-004 · Magical Reflections](004-magical-reflections.md)** <br/> WebXR / NanoGL / Blender / Houdini / Lightmap | 画作内漫游、虚拟艺术馆、交互叙事 | 仅有技术文章和部分开源组件 |
 
+| <img src="https://raw.githubusercontent.com/maxvyshniakov/earthlight/b6fd3c12b6be0bb03fd557a3258fb4f002e747b0/docs/media/aurora.webp" alt="Earthlight 夜侧地球极光与银河的官方作品预览" width="185" /> | **[FAV-005 · Earthlight](005-earthlight.md)** <br/> Raw WebGL / GLSL / 大气散射 / 轨道镜头 | 行星尺度光学、太空漫游、电影镜头 | **源码 MIT，第三方素材另行核对** |
+
 > 预览图来源：[001 Codrops 封面](https://tympanus.net/codrops/2026/07/07/building-a-scroll-driven-3d-gallery-using-a-blender-camera-path-with-three-js-and-gsap/) · [002 mesh3d.gallery](https://mesh3d.gallery/) · [003 CSS Winner（2024年截图）](https://www.csswinner.com/details/active-theory-v6/17797) · [004 Makemepulse 官方](https://www.makemepulse.com/news/magical-reflections-a-webxr-experience-powered-by-nanogl) · [005 Earthlight 作者官方截图](https://github.com/maxvyshniakov/earthlight/blob/main/docs/media/aurora.webp)。图像用于辨认收藏案例，不代表图片已获独立授权或反映当前实时页面。
 
 ## 一键进入原案例
