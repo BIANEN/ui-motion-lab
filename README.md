@@ -57,3 +57,7 @@ The model, 18,000 blue-noise photon samples, palette, Canvas renderer, slow retu
 - CI tests exercise contact onset versus steady contact, cursor idle decay, local shockwave radius, orbit, original body data and standalone offline rendering.
 
 To inspect running diagnostics, use `window.photonDebug` in a browser's developer console.
+
+## Design inspiration favorites / 设计灵感收藏库
+
+- **[打开收藏索引｜Favorites](references/favorites/README.md)** — Curve Gallery、When Cells Collide、Active Theory；含技术拆解、可否改造/商用的许可提醒与学习路线。用编号 `FAV-001` 等随时引用。

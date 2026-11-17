@@ -1,0 +1,49 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-11-17",
+  "collection": "UI Motion Lab Favorites",
+  "items": [
+    {
+      "id": "FAV-001",
+      "title": "Curve Gallery",
+      "category": [
+        "3D gallery",
+        "camera path",
+        "scroll"
+      ],
+      "source_url": "https://tympanus.net/Tutorials/CurveGallery/",
+      "code_url": "https://github.com/gaspoorf/curve-gallery",
+      "archive_url": "https://github.com/BIANEN/ui-motion-lab/tree/reference/curve-gallery-archive/references/curve-gallery",
+      "license_status": "Codrops downloadable demo MIT default; upstream repo standalone LICENSE absent; media separately licensed",
+      "reuse": "conditional",
+      "notes": "001-curve-gallery.md"
+    },
+    {
+      "id": "FAV-002",
+      "title": "When Cells Collide",
+      "category": [
+        "particle",
+        "physics",
+        "shader"
+      ],
+      "source_url": "https://tympanus.net/codrops/2025/09/11/when-cells-collide-the-making-of-an-organic-particle-experiment-with-rapier-three-js/",
+      "demo_url": "https://unseen.co/labs/cellular/",
+      "license_status": "Full project source and reuse license not verified",
+      "reuse": "reimplement",
+      "notes": "002-when-cells-collide.md"
+    },
+    {
+      "id": "FAV-003",
+      "title": "Active Theory",
+      "category": [
+        "cinematic",
+        "3D gallery",
+        "spatial UI"
+      ],
+      "source_url": "https://activetheory.net/",
+      "license_status": "No permission verified for direct use of production website/source/assets",
+      "reuse": "inspiration",
+      "notes": "003-active-theory.md"
+    }
+  ]
+}
