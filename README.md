@@ -71,7 +71,7 @@ To inspect running diagnostics, use `window.photonDebug` in a browser's develope
 
 | 01 蓝色网光体 · A版 | 02 彩虹流光体 · A版 |
 |:--:|:--:|
-| [<img src="assets/spiritual-bodies/01-blue-wireframe-light-body/previews/01-front.svg" width="160" alt="01 Blue Wireframe Light Body">](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [<img src="assets/spiritual-bodies/02-rainbow-flow-body/previews/01-front.svg" width="160" alt="02 Rainbow Flow Body">](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
-| [01 · 9 张独立参考缩略图](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [02 · 正面参考缩略图](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
+| [<img src="assets/spiritual-bodies/01-blue-wireframe-light-body/version-A/views/01-front.png" width="160" alt="01 Blue Wireframe Light Body">](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [<img src="assets/spiritual-bodies/02-rainbow-flow-body/previews/01-front.svg" width="160" alt="02 Rainbow Flow Body">](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
+| [01 · 9 张已校验高清图片](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [02 · 正面参考缩略图](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
 
-*说明：GitHub 中显示的是轻量缩略图，原始高清参考 PNG 尚未同步到仓库。图片独立生成的多视角不是校准过的正交相机结果。*
+*说明：01 的全部 9 张高清图已经入库；02 仍是缩略图预览。所有 AI 生成的多角度图片仍是视觉参考，而非经 3D 母模型校准的正交视图。*
