@@ -83,3 +83,12 @@ To inspect running diagnostics, use `window.photonDebug` in a browser's develope
 - [02 结构与试评分报告](assets/spiritual-bodies/02-rainbow-flow-body/review/README.md) · [机器可读模型参数 JSON](assets/spiritual-bodies/02-rainbow-flow-body/review/asset-spec.json) · [全项目 3D-ASSET-REVIEW-V1 审核标准](assets/spiritual-bodies/3D-ASSET-REVIEW-V1.md)
 
 *Pilot / DRAFT: 这是基于多视图的三维建模假设，不是最终精确复刻，也没有通过 Stage A / B 入库验收。*
+
+
+## Claude 3D Codegen Lab · 代码生成实操手册（2026-11-20）
+
+- **[进入 Claude 3D 代码生成资料库](research/claude-3d-codegen/README.md)** — Three.js 互动网页、确定性代码视频、Blender Python、混合方案。
+- **[给 Claude Code 的入口说明](research/claude-3d-codegen/CLAUDE.md)** — 直接读仓库内提示词、案例、场景需求模板和 QA 标准。
+- [完整工程提示词与实操工作流](research/claude-3d-codegen/docs/engineering-prompts-and-workflows.md) · [可视化 HTML 工作台](research/claude-3d-codegen/workbench/index.html) · [开源案例研究库](research/claude-3d-codegen/data/open-source-case-database.md)
+
+用 Claude Code 打开本仓库后，输入：`Read research/claude-3d-codegen/CLAUDE.md first and follow its instructions.`
