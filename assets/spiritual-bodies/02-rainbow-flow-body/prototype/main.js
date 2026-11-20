@@ -45,7 +45,7 @@ function ghostMaterial(extra = {}) {
   return new THREE.MeshBasicMaterial({
     color:0x0f81d1,
     transparent:true,
-    opacity:0.095,
+    opacity:0.055,
     depthWrite:false,
     side:THREE.DoubleSide,
     ...extra
@@ -104,7 +104,7 @@ function buildBody() {
   }
   // The magenta head-edge acts as a volumetric cue; it is NOT a photo-sprite.
   ellipse(body,"AURA_HEAD",[0,0.78,-0.008],[0.117,0.154,0.107],
-    ghostMaterial({color:0x991bfe,opacity:0.14,blending:THREE.AdditiveBlending}));
+    ghostMaterial({color:0x991bfe,opacity:0.08,blending:THREE.AdditiveBlending}));
 }
 
 const vertexShader = `
@@ -121,9 +121,9 @@ const fragmentShader = `
   varying float vProgress;
   void main() {
     float pulse = pow(max(0.0, sin(vProgress * 48.0 - uTime * 7.5)), 7.0);
-    float shimmer = 0.78 + 0.22 * sin(vProgress * 14.0 - uTime * 2.6);
-    vec3 emission = uColor * (shimmer + 1.15 * pulse);
-    float a = uOpacity * (0.68 + 0.28 * shimmer + 0.18 * pulse);
+    float shimmer = 0.60 + 0.20 * sin(vProgress * 14.0 - uTime * 2.6);
+    vec3 emission = uColor * (shimmer + 0.42 * pulse);
+    float a = uOpacity * (0.52 + 0.22 * shimmer + 0.12 * pulse);
     gl_FragColor = vec4(emission, min(a, 1.0));
   }
 `;
@@ -146,7 +146,7 @@ function buildCurves(spec) {
   const flow=layerGroups.flow;
   for(const item of spec.curves) {
     const path = new THREE.CatmullRomCurve3(item.points.map(v),false,"centripetal");
-    for (const [suffix,radius,opacity] of [["-halo",item.radius*3.25,0.085],["-core",item.radius,0.92]]) {
+    for (const [suffix,radius,opacity] of [["-halo",item.radius*2.15,0.028],["-core",item.radius,0.66]]) {
       const geometry = new THREE.TubeGeometry(path,94,radius,7,false);
       const mesh = new THREE.Mesh(geometry,flowMaterial(item.color,opacity));
       mesh.name = item.id + suffix;
@@ -168,9 +168,9 @@ function buildNodes(spec) {
     const group=new THREE.Group();
     group.name=item.id+"-"+item.label;
     group.position.copy(v(item.center));
-    const halo=new THREE.Mesh(new THREE.SphereGeometry(item.radius*2.6,24,16),basicGlow(item.color,0.13));
-    const center=new THREE.Mesh(new THREE.SphereGeometry(item.radius,24,16),basicGlow(item.color,1));
-    const sparkle=new THREE.Mesh(new THREE.SphereGeometry(item.radius*0.33,16,12),basicGlow(0xffffff,0.94));
+    const halo=new THREE.Mesh(new THREE.SphereGeometry(item.radius*2.6,24,16),basicGlow(item.color,0.052));
+    const center=new THREE.Mesh(new THREE.SphereGeometry(item.radius,24,16),basicGlow(item.color,0.74));
+    const sparkle=new THREE.Mesh(new THREE.SphereGeometry(item.radius*0.33,16,12),basicGlow(0xffffff,0.42));
     group.add(halo,center,sparkle);
     group.userData.source="inferred-world-position";
     layerGroups.nodes.add(group);
@@ -183,19 +183,19 @@ function buildCrown(spec) {
   // CylinderGeometry(radiusTop,radiusBottom) is oriented along world Y.
   const shell=new THREE.Mesh(
     new THREE.CylinderGeometry(c.topRadius,c.baseRadius,h,56,1,true),
-    basicGlow(0xe9f4ff,0.075)
+    basicGlow(0xe9f4ff,0.012)
   );
   shell.name="CROWN_VOLUMETRIC_SHELL";
   shell.position.y=(c.baseY+c.topY)/2;
   layerGroups.crown.add(shell);
-  const inner=new THREE.Mesh(new THREE.CylinderGeometry(c.topRadius*0.65,c.baseRadius*0.5,h,48,1,true),basicGlow(0xffffff,0.045));
+  const inner=new THREE.Mesh(new THREE.CylinderGeometry(c.topRadius*0.65,c.baseRadius*0.5,h,48,1,true),basicGlow(0xffffff,0.009));
   inner.position.y=shell.position.y;
   layerGroups.crown.add(inner);
   crownRings=[];
   for (let i=0;i<c.rings.length;i++) {
     const y=c.rings[i], f=(y-c.baseY)/h;
     const radius=c.baseRadius+(c.topRadius-c.baseRadius)*f;
-    const torus=new THREE.Mesh(new THREE.TorusGeometry(radius,0.0026,7,50),basicGlow(0xffffff,0.76));
+    const torus=new THREE.Mesh(new THREE.TorusGeometry(radius,0.0026,7,50),basicGlow(0xffffff,0.42));
     torus.name="CROWN_RING_"+i;
     torus.rotation.x=Math.PI/2;
     torus.position.y=y;
@@ -239,10 +239,10 @@ function makeRenderer() {
   controls.update();
   composer=new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene,camera));
-  bloomPass=new UnrealBloomPass(new THREE.Vector2(width,height),1.25,0.7,0.13);
-  bloomPass.threshold=0.13;
-  bloomPass.strength=1.25;
-  bloomPass.radius=0.7;
+  bloomPass=new UnrealBloomPass(new THREE.Vector2(width,height),0.25,0.12,0.89);
+  bloomPass.threshold=0.89;
+  bloomPass.strength=0.25;
+  bloomPass.radius=0.12;
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
 }
@@ -312,7 +312,7 @@ function animate() {
   if(state.playing) animationTime+=delta*state.speed;
   timeUniform.value=animationTime;
   nodes.forEach((item,i)=>{
-    item.halo.material.opacity=0.12+0.045*Math.sin(animationTime*3+i*0.8);
+    item.halo.material.opacity=0.052+0.017*Math.sin(animationTime*3+i*0.8);
     item.group.scale.setScalar(1+0.04*Math.sin(animationTime*2.3+i));
   });
   if(crownRings) crownRings.forEach((ring,i)=>ring.scale.setScalar(1+0.025*Math.sin(animationTime*3-i)));
