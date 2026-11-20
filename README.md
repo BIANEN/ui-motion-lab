@@ -75,3 +75,11 @@ To inspect running diagnostics, use `window.photonDebug` in a browser's develope
 | [01 · 9 张已校验高清图片](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [02 · 正面参考缩略图](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
 
 *说明：01 的全部 9 张高清图已经入库；02 仍是缩略图预览。所有 AI 生成的多角度图片仍是视觉参考，而非经 3D 母模型校准的正交视图。*
+
+
+### 02 Rainbow Flow Body · Code-Ready Pilot / 纯代码 3D 打板
+
+- **[运行 Three.js 3D 原型](https://bianen.github.io/ui-motion-lab/assets/spiritual-bodies/02-rainbow-flow-body/prototype/)** — 16 条三维流光、6 个节点、独立图层、可切换摄像机及 Bloom 调参。
+- [02 结构与试评分报告](assets/spiritual-bodies/02-rainbow-flow-body/review/README.md) · [机器可读模型参数 JSON](assets/spiritual-bodies/02-rainbow-flow-body/review/asset-spec.json) · [全项目 3D-ASSET-REVIEW-V1 审核标准](assets/spiritual-bodies/3D-ASSET-REVIEW-V1.md)
+
+*Pilot / DRAFT: 这是基于多视图的三维建模假设，不是最终精确复刻，也没有通过 Stage A / B 入库验收。*
