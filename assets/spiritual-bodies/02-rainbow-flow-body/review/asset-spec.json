@@ -872,11 +872,11 @@
     }
   ],
   "shader": {
-    "bloomStrength": 1.25,
-    "bloomRadius": 0.7,
-    "bloomThreshold": 0.13,
+    "bloomStrength": 0.25,
+    "bloomRadius": 0.12,
+    "bloomThreshold": 0.89,
     "flowSpeed": 0.6,
-    "bodyOpacity": 0.07,
+    "bodyOpacity": 0.055,
     "background": "#010205"
   },
   "layers": [
@@ -891,6 +891,7 @@
     "Back routes and their z depths are invented consistency assumptions because original artwork gives front projection only.",
     "Generated top-oblique image introduces a head-down bias and is not approved as orthographic top reference.",
     "Use one scene for all camera views; do not independently generate each view in the approved 3D stage.",
-    "Do not mistake a demonstrator built of primitives for a final anatomically faithful mesh."
+    "Do not mistake a demonstrator built of primitives for a final anatomically faithful mesh.",
+    "First headless browser render revealed overexposed bloom, so pilot defaults were reduced to retain separate luminous RGB ribbons."
   ]
 }
