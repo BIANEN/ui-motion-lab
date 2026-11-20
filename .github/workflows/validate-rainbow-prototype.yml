@@ -1,0 +1,54 @@
+name: Validate Rainbow Flow Code-Ready Pilot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/validate-rainbow-prototype.yml'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/review/**'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/prototype/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static syntax / schema / evidence validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=assets/spiritual-bodies/02-rainbow-flow-body
+          cp "$target/prototype/main.js" /tmp/rainbow-pilot.mjs
+          node --check /tmp/rainbow-pilot.mjs
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          base = Path("assets/spiritual-bodies/02-rainbow-flow-body")
+          d = json.loads((base/"review/asset-spec.json").read_text(encoding="utf8"))
+          assert d["assetId"] == "02" and d["reviewStatus"] == "candidate-not-approved"
+          assert len(d["nodes"]) == 6
+          assert len(d["curves"]) == 16
+          assert sum(x["score"] for x in d["score"]["categories"]) == 63
+          assert sum(x["max"] for x in d["score"]["categories"]) == 100
+          assert len({x["id"] for x in d["curves"]}) == 16
+          for item in d["curves"]:
+              assert item["color"].startswith("#")
+              assert item["radius"] > 0
+              assert len(item["points"]) >= 4
+              assert all(len(p) == 3 and all(isinstance(v, (int,float)) for v in p) for p in item["points"])
+          for item in d["nodes"]:
+              assert len(item["center"]) == 3
+          html = (base/"prototype/index.html").read_text(encoding="utf8")
+          js = (base/"prototype/main.js").read_text(encoding="utf8")
+          assert 'type="importmap"' in html and 'src="./main.js"' in html
+          for symbol in ('TubeGeometry', 'OrbitControls', 'EffectComposer', 'UnrealBloomPass',
+                         'data-layer', '__rainbowDebug'):
+              assert symbol in html + js, symbol
+          print("STATIC VALIDATION PASSED: 16 curves, 6 nodes, review score 63/100, module syntax.")
+          print("NOT AN IN-BROWSER RENDER OR PERFORMANCE TEST.")
+          PY
