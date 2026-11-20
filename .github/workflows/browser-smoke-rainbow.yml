@@ -31,7 +31,7 @@ jobs:
       - name: Install headless Chromium + Playwright
         run: |
           mkdir -p /tmp/rainbow-ci
-          npm install --prefix /tmp/rainbow-ci --no-audit --no-fund --silent playwright@1.56.1
+          npm install --prefix /tmp/rainbow-ci --no-audit --no-fund --silent playwright@1.56.1 pngjs@7.0.0
           /tmp/rainbow-ci/node_modules/.bin/playwright install --with-deps chromium
           cp assets/spiritual-bodies/02-rainbow-flow-body/prototype/smoke.mjs /tmp/rainbow-ci/smoke.mjs
       - name: Start local HTTP server
