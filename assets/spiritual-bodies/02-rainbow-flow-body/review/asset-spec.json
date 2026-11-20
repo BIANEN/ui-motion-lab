@@ -1,0 +1,896 @@
+{
+  "schema": "spirit-body-code-ready-spec/0.1",
+  "assetId": "02",
+  "assetSlug": "rainbow-flow-body",
+  "assetName": {
+    "zh": "彩虹流光体",
+    "en": "Rainbow Flow Body"
+  },
+  "version": "A-PILOT",
+  "reviewStatus": "candidate-not-approved",
+  "sourceOfTruth": "Original source image (第3身第2灵体—彩虹流光体.jpg)",
+  "sourceImage": {
+    "repositoryStatus": "pending-binary-upload",
+    "referenceDescription": "Original front-only rainbow energy body with colored flowing curves, six visible glowing centers and crown funnel",
+    "provenance": "user-uploaded"
+  },
+  "imageEvidence": [
+    {
+      "id": "O00",
+      "role": "source-original",
+      "view": "front",
+      "status": "observed",
+      "location": "conversation upload / pending GitHub source"
+    },
+    {
+      "id": "G01",
+      "role": "generated-reference",
+      "view": "front",
+      "status": "inferred",
+      "location": "conversation image; first front"
+    },
+    {
+      "id": "G02",
+      "role": "generated-reference",
+      "view": "right-side",
+      "status": "inferred",
+      "location": "conversation image; latest"
+    },
+    {
+      "id": "G03",
+      "role": "generated-reference",
+      "view": "back",
+      "status": "inferred",
+      "location": "conversation image; latest"
+    },
+    {
+      "id": "G04",
+      "role": "generated-reference",
+      "view": "three-quarter",
+      "status": "inferred",
+      "location": "conversation image; latest"
+    },
+    {
+      "id": "G05",
+      "role": "generated-reference",
+      "view": "top-oblique-NOT-orthographic",
+      "status": "inferred",
+      "location": "conversation image; auxiliary"
+    }
+  ],
+  "score": {
+    "status": "provisional-visual-only",
+    "total": 63,
+    "max": 100,
+    "categories": [
+      {
+        "id": "FID",
+        "label": "原图忠实度",
+        "score": 12,
+        "max": 15
+      },
+      {
+        "id": "MV",
+        "label": "多视角几何一致性",
+        "score": 16,
+        "max": 25
+      },
+      {
+        "id": "GEO",
+        "label": "代码几何可重建性",
+        "score": 13,
+        "max": 20
+      },
+      {
+        "id": "LAY",
+        "label": "图层参数化",
+        "score": 5,
+        "max": 15
+      },
+      {
+        "id": "SHD",
+        "label": "Shader 可复现性",
+        "score": 13,
+        "max": 15
+      },
+      {
+        "id": "INT",
+        "label": "动画交互准备度",
+        "score": 4,
+        "max": 10
+      }
+    ]
+  },
+  "coordinateSystem": {
+    "unit": "m",
+    "up": "Y",
+    "front": "+Z",
+    "right": "+X",
+    "origin": "body center; front cam +Z",
+    "heightAssumed": 1.85,
+    "heightSource": "modeling convention, not measured from image",
+    "frontCamera": [
+      0,
+      0.12,
+      3.75
+    ],
+    "sideCamera": [
+      3.75,
+      0.12,
+      0
+    ],
+    "backCamera": [
+      0,
+      0.12,
+      -3.75
+    ],
+    "topCamera": [
+      0,
+      3.75,
+      0.01
+    ]
+  },
+  "silhouette": {
+    "arms": "30–40 deg down, slightly spread",
+    "legs": "slightly parted",
+    "bodyType": "nearly transparent androgynous abstract form; no clothing",
+    "details": "hand and foot anatomy not sufficiently constrained"
+  },
+  "nodes": [
+    {
+      "id": "N01",
+      "label": "forehead",
+      "color": "#1c4bff",
+      "center": [
+        0,
+        0.79,
+        0.105
+      ],
+      "radius": 0.029
+    },
+    {
+      "id": "N02",
+      "label": "throat",
+      "color": "#11e9f6",
+      "center": [
+        0,
+        0.55,
+        0.124
+      ],
+      "radius": 0.026
+    },
+    {
+      "id": "N03",
+      "label": "upper-chest",
+      "color": "#17ff25",
+      "center": [
+        0,
+        0.33,
+        0.163
+      ],
+      "radius": 0.03
+    },
+    {
+      "id": "N04",
+      "label": "solar-plexus",
+      "color": "#fff31b",
+      "center": [
+        0,
+        0.12,
+        0.173
+      ],
+      "radius": 0.028
+    },
+    {
+      "id": "N05",
+      "label": "lower-abdomen",
+      "color": "#ff981a",
+      "center": [
+        0,
+        -0.09,
+        0.135
+      ],
+      "radius": 0.027
+    },
+    {
+      "id": "N06",
+      "label": "pelvis",
+      "color": "#ff2c3c",
+      "center": [
+        0,
+        -0.29,
+        0.115
+      ],
+      "radius": 0.026
+    }
+  ],
+  "crown": {
+    "id": "BEAM-01",
+    "baseY": 0.92,
+    "topY": 1.37,
+    "baseRadius": 0.017,
+    "topRadius": 0.165,
+    "rings": [
+      0.99,
+      1.055,
+      1.135,
+      1.225,
+      1.315
+    ],
+    "color": "#ffffff",
+    "source": "inferred from upward white cone with rings"
+  },
+  "curves": [
+    {
+      "id": "C01",
+      "name": "magenta-left-contour",
+      "color": "#fd1fff",
+      "radius": 0.0085,
+      "depth": "front",
+      "points": [
+        [
+          -0.04,
+          0.64,
+          0.025
+        ],
+        [
+          -0.14,
+          0.56,
+          0.08
+        ],
+        [
+          -0.27,
+          0.47,
+          0.05
+        ],
+        [
+          -0.37,
+          0.37,
+          0.025
+        ],
+        [
+          -0.5,
+          0.28,
+          0.025
+        ],
+        [
+          -0.66,
+          0.16,
+          0.01
+        ],
+        [
+          -0.73,
+          0.11,
+          0.02
+        ]
+      ]
+    },
+    {
+      "id": "C02",
+      "name": "violet-left-inner-arm",
+      "color": "#8b35ff",
+      "radius": 0.006,
+      "depth": "front",
+      "points": [
+        [
+          -0.1,
+          0.59,
+          0.04
+        ],
+        [
+          -0.24,
+          0.44,
+          0.07
+        ],
+        [
+          -0.32,
+          0.35,
+          0.1
+        ],
+        [
+          -0.46,
+          0.23,
+          0.08
+        ],
+        [
+          -0.63,
+          0.14,
+          0.065
+        ],
+        [
+          -0.71,
+          0.09,
+          0.03
+        ]
+      ]
+    },
+    {
+      "id": "C03",
+      "name": "blue-right-contour",
+      "color": "#124bff",
+      "radius": 0.0085,
+      "depth": "front",
+      "points": [
+        [
+          0.04,
+          0.64,
+          0.03
+        ],
+        [
+          0.17,
+          0.55,
+          0.05
+        ],
+        [
+          0.29,
+          0.47,
+          0.06
+        ],
+        [
+          0.4,
+          0.35,
+          0.04
+        ],
+        [
+          0.53,
+          0.26,
+          0.02
+        ],
+        [
+          0.66,
+          0.16,
+          0.01
+        ],
+        [
+          0.73,
+          0.09,
+          0.01
+        ]
+      ]
+    },
+    {
+      "id": "C04",
+      "name": "cyan-right-arm",
+      "color": "#0ae8f6",
+      "radius": 0.006,
+      "depth": "front",
+      "points": [
+        [
+          0.12,
+          0.54,
+          0.1
+        ],
+        [
+          0.25,
+          0.44,
+          0.12
+        ],
+        [
+          0.32,
+          0.35,
+          0.13
+        ],
+        [
+          0.44,
+          0.28,
+          0.1
+        ],
+        [
+          0.55,
+          0.2,
+          0.08
+        ],
+        [
+          0.7,
+          0.1,
+          0.03
+        ]
+      ]
+    },
+    {
+      "id": "C05",
+      "name": "green-chest-right-leg",
+      "color": "#30ff42",
+      "radius": 0.011,
+      "depth": "front",
+      "points": [
+        [
+          0.08,
+          0.49,
+          0.1
+        ],
+        [
+          0.21,
+          0.41,
+          0.16
+        ],
+        [
+          0.14,
+          0.2,
+          0.16
+        ],
+        [
+          0.11,
+          -0.04,
+          0.14
+        ],
+        [
+          0.15,
+          -0.28,
+          0.12
+        ],
+        [
+          0.23,
+          -0.53,
+          0.11
+        ],
+        [
+          0.26,
+          -0.77,
+          0.065
+        ],
+        [
+          0.3,
+          -0.9,
+          0.045
+        ]
+      ]
+    },
+    {
+      "id": "C06",
+      "name": "cyan-torso-right-leg",
+      "color": "#00f5ed",
+      "radius": 0.01,
+      "depth": "front",
+      "points": [
+        [
+          0.19,
+          0.45,
+          0.13
+        ],
+        [
+          0.08,
+          0.29,
+          0.18
+        ],
+        [
+          0.18,
+          0.11,
+          0.13
+        ],
+        [
+          0.2,
+          -0.14,
+          0.1
+        ],
+        [
+          0.22,
+          -0.39,
+          0.14
+        ],
+        [
+          0.17,
+          -0.59,
+          0.09
+        ],
+        [
+          0.27,
+          -0.85,
+          0.09
+        ]
+      ]
+    },
+    {
+      "id": "C07",
+      "name": "red-left-torso-leg",
+      "color": "#ff2159",
+      "radius": 0.011,
+      "depth": "front",
+      "points": [
+        [
+          -0.21,
+          0.41,
+          0.06
+        ],
+        [
+          -0.17,
+          0.27,
+          0.15
+        ],
+        [
+          -0.19,
+          0.03,
+          0.16
+        ],
+        [
+          -0.17,
+          -0.21,
+          0.14
+        ],
+        [
+          -0.19,
+          -0.48,
+          0.1
+        ],
+        [
+          -0.27,
+          -0.68,
+          0.08
+        ],
+        [
+          -0.3,
+          -0.86,
+          0.045
+        ]
+      ]
+    },
+    {
+      "id": "C08",
+      "name": "orange-left-leg",
+      "color": "#ff821c",
+      "radius": 0.0095,
+      "depth": "front",
+      "points": [
+        [
+          -0.17,
+          0.14,
+          0.14
+        ],
+        [
+          -0.22,
+          -0.03,
+          0.15
+        ],
+        [
+          -0.18,
+          -0.28,
+          0.125
+        ],
+        [
+          -0.25,
+          -0.51,
+          0.115
+        ],
+        [
+          -0.2,
+          -0.68,
+          0.085
+        ],
+        [
+          -0.27,
+          -0.9,
+          0.05
+        ]
+      ]
+    },
+    {
+      "id": "C09",
+      "name": "yellow-left-foot-contour",
+      "color": "#fff01a",
+      "radius": 0.009,
+      "depth": "front",
+      "points": [
+        [
+          -0.11,
+          -0.28,
+          0.1
+        ],
+        [
+          -0.21,
+          -0.42,
+          0.11
+        ],
+        [
+          -0.25,
+          -0.6,
+          0.1
+        ],
+        [
+          -0.29,
+          -0.78,
+          0.09
+        ],
+        [
+          -0.3,
+          -0.89,
+          0.08
+        ],
+        [
+          -0.35,
+          -0.92,
+          0.15
+        ]
+      ]
+    },
+    {
+      "id": "C10",
+      "name": "yellow-right-foot-contour",
+      "color": "#fff21c",
+      "radius": 0.009,
+      "depth": "front",
+      "points": [
+        [
+          0.09,
+          -0.28,
+          0.1
+        ],
+        [
+          0.23,
+          -0.46,
+          0.1
+        ],
+        [
+          0.26,
+          -0.66,
+          0.1
+        ],
+        [
+          0.28,
+          -0.82,
+          0.08
+        ],
+        [
+          0.3,
+          -0.91,
+          0.08
+        ],
+        [
+          0.34,
+          -0.92,
+          0.15
+        ]
+      ]
+    },
+    {
+      "id": "C11",
+      "name": "cyan-cross-chest",
+      "color": "#00c8ff",
+      "radius": 0.0055,
+      "depth": "front",
+      "points": [
+        [
+          -0.27,
+          0.41,
+          0.09
+        ],
+        [
+          -0.13,
+          0.38,
+          0.17
+        ],
+        [
+          0,
+          0.34,
+          0.19
+        ],
+        [
+          0.16,
+          0.35,
+          0.15
+        ],
+        [
+          0.3,
+          0.42,
+          0.09
+        ]
+      ]
+    },
+    {
+      "id": "C12",
+      "name": "yellow-right-shoulder",
+      "color": "#c9ee28",
+      "radius": 0.0055,
+      "depth": "front",
+      "points": [
+        [
+          0.05,
+          0.4,
+          0.16
+        ],
+        [
+          0.16,
+          0.45,
+          0.17
+        ],
+        [
+          0.25,
+          0.42,
+          0.12
+        ],
+        [
+          0.39,
+          0.34,
+          0.08
+        ],
+        [
+          0.54,
+          0.25,
+          0.055
+        ]
+      ]
+    },
+    {
+      "id": "C13",
+      "name": "magenta-back-shoulder",
+      "color": "#ed25f2",
+      "radius": 0.008,
+      "depth": "back",
+      "points": [
+        [
+          -0.07,
+          0.64,
+          -0.1
+        ],
+        [
+          -0.2,
+          0.55,
+          -0.09
+        ],
+        [
+          -0.28,
+          0.45,
+          -0.085
+        ],
+        [
+          -0.4,
+          0.34,
+          -0.06
+        ],
+        [
+          -0.61,
+          0.18,
+          -0.04
+        ],
+        [
+          -0.71,
+          0.1,
+          -0.025
+        ]
+      ]
+    },
+    {
+      "id": "C14",
+      "name": "blue-back-shoulder",
+      "color": "#1a57ff",
+      "radius": 0.008,
+      "depth": "back",
+      "points": [
+        [
+          0.06,
+          0.63,
+          -0.1
+        ],
+        [
+          0.23,
+          0.51,
+          -0.11
+        ],
+        [
+          0.33,
+          0.42,
+          -0.085
+        ],
+        [
+          0.46,
+          0.29,
+          -0.06
+        ],
+        [
+          0.63,
+          0.18,
+          -0.04
+        ],
+        [
+          0.73,
+          0.1,
+          -0.02
+        ]
+      ]
+    },
+    {
+      "id": "C15",
+      "name": "green-back-right-leg",
+      "color": "#6aff1f",
+      "radius": 0.009,
+      "depth": "back",
+      "points": [
+        [
+          0.19,
+          0.43,
+          -0.1
+        ],
+        [
+          0.15,
+          0.19,
+          -0.17
+        ],
+        [
+          0.18,
+          -0.08,
+          -0.14
+        ],
+        [
+          0.17,
+          -0.3,
+          -0.14
+        ],
+        [
+          0.22,
+          -0.54,
+          -0.11
+        ],
+        [
+          0.27,
+          -0.77,
+          -0.08
+        ],
+        [
+          0.31,
+          -0.9,
+          -0.05
+        ]
+      ]
+    },
+    {
+      "id": "C16",
+      "name": "orange-back-left-leg",
+      "color": "#ff9f2f",
+      "radius": 0.009,
+      "depth": "back",
+      "points": [
+        [
+          -0.2,
+          0.32,
+          -0.12
+        ],
+        [
+          -0.17,
+          0.05,
+          -0.16
+        ],
+        [
+          -0.17,
+          -0.25,
+          -0.15
+        ],
+        [
+          -0.22,
+          -0.46,
+          -0.14
+        ],
+        [
+          -0.24,
+          -0.66,
+          -0.09
+        ],
+        [
+          -0.27,
+          -0.9,
+          -0.05
+        ]
+      ]
+    }
+  ],
+  "shader": {
+    "bloomStrength": 1.25,
+    "bloomRadius": 0.7,
+    "bloomThreshold": 0.13,
+    "flowSpeed": 0.6,
+    "bodyOpacity": 0.07,
+    "background": "#010205"
+  },
+  "layers": [
+    "HumanBody3D",
+    "RainbowFlow3D",
+    "EnergyNodes3D",
+    "CrownBeam3D",
+    "PostProcessing"
+  ],
+  "implementationNotes": [
+    "ALL curve control points and node coordinates are 3D hypotheses for code prototyping, not photogrammetric reconstruction.",
+    "Back routes and their z depths are invented consistency assumptions because original artwork gives front projection only.",
+    "Generated top-oblique image introduces a head-down bias and is not approved as orthographic top reference.",
+    "Use one scene for all camera views; do not independently generate each view in the approved 3D stage.",
+    "Do not mistake a demonstrator built of primitives for a final anatomically faithful mesh."
+  ]
+}
