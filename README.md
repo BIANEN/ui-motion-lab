@@ -61,3 +61,17 @@ To inspect running diagnostics, use `window.photonDebug` in a browser's develope
 ## Design inspiration favorites / 设计灵感收藏库
 
 - **[打开收藏索引｜Favorites](references/favorites/README.md)** — Curve Gallery、When Cells Collide、Active Theory；含技术拆解、可否改造/商用的许可提醒与学习路线。用编号 `FAV-001` 等随时引用。
+
+
+## 3D Spirit Bodies · 可视化建模图库
+
+蓝色网光体（01）与彩虹流光体（02）的多视角参考素材已经建立独立编号，网页支持逐张查看。
+
+**[打开 3D 灵体图片画廊](assets/spiritual-bodies/gallery.html)** · **[查看编号式图像索引](assets/spiritual-bodies/README.md)**
+
+| 01 蓝色网光体 · A版 | 02 彩虹流光体 · A版 |
+|:--:|:--:|
+| [<img src="assets/spiritual-bodies/01-blue-wireframe-light-body/previews/01-front.svg" width="160" alt="01 Blue Wireframe Light Body">](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [<img src="assets/spiritual-bodies/02-rainbow-flow-body/previews/01-front.svg" width="160" alt="02 Rainbow Flow Body">](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
+| [01 · 9 张独立参考缩略图](assets/spiritual-bodies/01-blue-wireframe-light-body/README.md) | [02 · 正面参考缩略图](assets/spiritual-bodies/02-rainbow-flow-body/README.md) |
+
+*说明：GitHub 中显示的是轻量缩略图，原始高清参考 PNG 尚未同步到仓库。图片独立生成的多视角不是校准过的正交相机结果。*
