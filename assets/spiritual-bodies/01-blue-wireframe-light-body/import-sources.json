@@ -1,0 +1,61 @@
+{
+  "asset_id": "01",
+  "version": "A",
+  "notes": "One-time import URLs for full resolution source artwork and original PNGs. SHA-256 and byte length must match. Please keep asset folder and object identities stable.",
+  "files": [
+    {
+      "path": "source/01-original-reference.jpg",
+      "url": "https://v3b.fal.media/files/b/0ab32d43/_Zi2C63090qlhsLofNh8z_%3F2%3F%3F1%3F%3F%3F%3F%3F%3F%3F.jpg",
+      "sha256": "8c4c2cc45374bfd71295408c1ac9944a5d40b820b3aaeb401f899f252a613962",
+      "bytes": 53269
+    },
+    {
+      "path": "version-A/views/01-front.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d3d/u35AhTl_AYKJXg0X3urV5_leuchtender_drahtgitter_mensch_mit_energiekrone.png",
+      "sha256": "9a07f00bc6989130cb92deab859c166714c2c4ac113da36fe2de2a908be9444e",
+      "bytes": 1125220
+    },
+    {
+      "path": "version-A/views/02-right-side.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d43/GnRhIkGyfYbkughxuIgm7_cyaner_holografischer_energiek%3Frper_im_profil.png",
+      "sha256": "605e0897e6895f8bf68f17ad3b66252e582784205f7a14dad7d52b5467a61b48",
+      "bytes": 807596
+    },
+    {
+      "path": "version-A/views/03-back.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d43/RHFiPAm0NjuSc_0ey35Hl_cyaner_wireframe_sci_fi_humanoid_mit_energiekrone.png",
+      "sha256": "f0f6745a113a8c0aab0b49dee675dd0c84a94da1450ce91773fdf4361b5c3f06",
+      "bytes": 1091095
+    },
+    {
+      "path": "version-A/views/04-three-quarter.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d44/cACn4uxlGw7ZZ_RFphJGa_leuchtender_drahtgitter_mensch_mit_energiezentren.png",
+      "sha256": "8d775f5525894c15bc90176142abc0a313610c9816c3c5d58af1dcbe6e8c09b2",
+      "bytes": 1103746
+    },
+    {
+      "path": "version-A/views/05-top-oblique.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d44/JTvBBzOv3OUfx_IkA5LyN_cyanes_energiehologramm_in_draufsicht.png",
+      "sha256": "6c4ecc146fdfac50a7a47e32cfb54b1f047a0ae2fc441bda528346180ac437d1",
+      "bytes": 1010536
+    },
+    {
+      "path": "version-A/layers/01-wireframe-only.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d45/6_TChSqxjfaeFtIZIr080_leuchtendes_humanoides_drahtgittermodell.png",
+      "sha256": "c83d95d514f034f9de2caf337c415538f9098b203353c16fd6e6ae5c3d68851f",
+      "bytes": 1031674
+    },
+    {
+      "path": "version-A/layers/02-energy-nodes.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d45/uGL9ON-pGLk0-HbHNrl8f_f%3Fnf_blaue_energiezentren_im_drahtmodell.png",
+      "sha256": "e299379095685d59dc123bb76aea068e196453638d4610038f88fbe7a87d9e48",
+      "bytes": 616368
+    },
+    {
+      "path": "version-A/layers/03-head-beam.png",
+      "url": "https://v3b.fal.media/files/b/0ab32d46/ZACEmY15lcylFC-N1YbCU_holografische_figur_mit_lichtkrone.png",
+      "sha256": "3c60704fdd7cc4344c59be6de88090c604c08a5508495800bff31f1eb7958a9c",
+      "bytes": 534179
+    }
+  ]
+}
