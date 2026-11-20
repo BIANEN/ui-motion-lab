@@ -1,0 +1,62 @@
+name: Browser smoke and 3D view captures - Rainbow Body 02
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/browser-smoke-rainbow.yml'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/prototype/index.html'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/prototype/main.js'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/prototype/smoke.mjs'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/review/asset-spec.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rainbow-02-browser-captures
+  cancel-in-progress: false
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless Chromium + Playwright
+        run: |
+          mkdir -p /tmp/rainbow-ci
+          npm install --prefix /tmp/rainbow-ci --no-audit --no-fund --silent playwright@1.56.1
+          /tmp/rainbow-ci/node_modules/.bin/playwright install --with-deps chromium
+          cp assets/spiritual-bodies/02-rainbow-flow-body/prototype/smoke.mjs /tmp/rainbow-ci/smoke.mjs
+      - name: Start local HTTP server
+        run: |
+          python3 -m http.server 8791 --bind 127.0.0.1 >/tmp/rainbow-http.log 2>&1 &
+          echo $! >/tmp/rainbow-http.pid
+          sleep 2
+      - name: Render WebGL geometry and test interactions
+        run: node /tmp/rainbow-ci/smoke.mjs
+      - name: Save captures as job artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rainbow-flow-02-code-3d-captures
+          path: assets/spiritual-bodies/02-rainbow-flow-body/prototype/rendered/
+          if-no-files-found: warn
+      - name: Commit successfully rendered reference views
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/spiritual-bodies/02-rainbow-flow-body/prototype/rendered/
+          if git diff --cached --quiet; then
+            echo 'No new screenshots'
+          else
+            git commit -m 'render(02): add same-scene 3D code-generated view captures [pilot]'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
