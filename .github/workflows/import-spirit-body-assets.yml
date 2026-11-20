@@ -1,0 +1,86 @@
+name: Import full-resolution spirit body image references
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-spirit-body-assets.yml'
+      - 'assets/spiritual-bodies/**/import-sources.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: spirit-body-asset-import
+  cancel-in-progress: false
+
+jobs:
+  import-images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download exact original bytes and check SHA-256
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import time
+          import urllib.request
+
+          base = pathlib.Path("assets/spiritual-bodies/01-blue-wireframe-light-body")
+          spec = json.loads((base / "import-sources.json").read_text(encoding="utf-8"))
+          for item in spec["files"]:
+              rel = pathlib.PurePosixPath(item["path"])
+              if rel.is_absolute() or ".." in rel.parts:
+                  raise ValueError(f"unsafe asset path: {rel}")
+              destination = base.joinpath(*rel.parts)
+              expected_sha = item["sha256"]
+              expected_size = item["bytes"]
+              if destination.is_file():
+                  old = destination.read_bytes()
+                  if len(old) == expected_size and hashlib.sha256(old).hexdigest() == expected_sha:
+                      print("Already present and verified:", destination)
+                      continue
+                  raise ValueError(f"Existing file mismatches expected SHA256: {destination}")
+              last_error = None
+              for attempt in range(3):
+                  try:
+                      req = urllib.request.Request(item["url"], headers={"User-Agent": "MuseumOfFields-AssetImport/1.0"})
+                      with urllib.request.urlopen(req, timeout=60) as res:
+                          data = res.read()
+                      if len(data) != expected_size:
+                          raise ValueError(f"{rel}: byte-size mismatch {len(data)} != {expected_size}")
+                      actual = hashlib.sha256(data).hexdigest()
+                      if actual != expected_sha:
+                          raise ValueError(f"{rel}: SHA256 mismatch {actual} != {expected_sha}")
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      destination.write_bytes(data)
+                      print(f"Downloaded and verified {rel}: {len(data)} bytes ({actual[:12]})")
+                      break
+                  except Exception as exc:
+                      last_error = exc
+                      print(f"Download attempt {attempt+1} failed for {rel}: {exc}", flush=True)
+                      if attempt < 2: time.sleep(3 * (attempt + 1))
+              else:
+                  raise RuntimeError(f"Failed to import {rel}") from last_error
+          PY
+      - name: Commit verified original PNG and JPEG assets
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/spiritual-bodies/01-blue-wireframe-light-body/source/ assets/spiritual-bodies/01-blue-wireframe-light-body/version-A/
+          if git diff --cached --quiet; then
+            echo 'All verified originals already committed.'
+          else
+            git commit -m 'assets: add 01 blue wireframe full-resolution verified PNG references'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
