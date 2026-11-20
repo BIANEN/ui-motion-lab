@@ -23,7 +23,7 @@ dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhea
 <header><div class="eyebrow">Museum of Fields / Modeling Reference Library</div>
 <h1>SPIRIT BODIES<br>灵体 · 3D 参考图库</h1>
 <p>以单张视角与独立图层组织的三维建模参考。点击任一图片进入单图查看。</p>
-<p class="note">此处为网页预览缩略图，不是高清原始 PNG；正式建模应使用原始参考图与统一三维母模型。</p></header>
+<p class="note">01 的高清原始 PNG/JPG 已完整入库；点开即可查看完整分辨率。02 仍为低分辨率预览。正式建模需要统一三维母模型。</p></header>
 <div class="tabs" role="tablist" aria-label="Select spirit body">
 <button class="tab" role="tab" aria-selected="true" data-id="01">01 · 蓝色网光体</button>
 <button class="tab" role="tab" aria-selected="false" data-id="02">02 · 彩虹流光体</button>
@@ -32,27 +32,27 @@ dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhea
 <div class="grid" id="grid"></div>
 <footer><p>每张图片独立命名、独立索引。<a href="README.md">返回 GitHub 素材索引</a> · <a href="../../README.md">返回仓库首页</a></p><p>View angles generated independently are visual hypotheses, not calibrated 3D orthographic renders.</p></footer>
 </main>
-<dialog id="viewer" aria-label="Image viewer"><div class="viewerhead"><b id="vtitle"></b><button class="close" id="close">关闭 ✕</button></div><img id="large" alt=""><div class="viewerfoot"><a id="openimage" target="_blank" rel="noopener">单独打开预览文件</a><span>高清原始 PNG 待上传</span></div></dialog>
+<dialog id="viewer" aria-label="Image viewer"><div class="viewerhead"><b id="vtitle"></b><button class="close" id="close">关闭 ✕</button></div><img id="large" alt=""><div class="viewerfoot"><a id="openimage" target="_blank" rel="noopener">单独打开预览文件</a><span id="sourceState">原始高清文件</span></div></dialog>
 <script>
 const sets={
 "01":{title:"01 蓝色网光体 · Version A",path:"01-blue-wireframe-light-body/previews/",images:[
-["00-original.svg","原始参考","Original reference"],
-["01-front.svg","正视图","Front"],
-["02-right-side.svg","右侧视图","Right Side"],
-["03-back.svg","背视图","Back"],
-["04-three-quarter.svg","45°透视图","Three-quarter"],
-["05-top-oblique.svg","高角度视图","Top-oblique (not orthographic)"],
-["06-wireframe-only.svg","独立网格层","Wireframe-only"],
-["07-energy-nodes.svg","发光节点层","Energy nodes"],
-["08-head-beam.svg","头顶光束层","Head beam"]
+["00-original.svg","原始参考","Original reference","source/01-original-reference.jpg"],
+["01-front.svg","正视图","Front","version-A/views/01-front.png"],
+["02-right-side.svg","右侧视图","Right Side","version-A/views/02-right-side.png"],
+["03-back.svg","背视图","Back","version-A/views/03-back.png"],
+["04-three-quarter.svg","45°透视图","Three-quarter","version-A/views/04-three-quarter.png"],
+["05-top-oblique.svg","高角度视图","Top-oblique (not orthographic)","version-A/views/05-top-oblique.png"],
+["06-wireframe-only.svg","独立网格层","Wireframe-only","version-A/layers/01-wireframe-only.png"],
+["07-energy-nodes.svg","发光节点层","Energy nodes","version-A/layers/02-energy-nodes.png"],
+["08-head-beam.svg","头顶光束层","Head beam","version-A/layers/03-head-beam.png"]
 ]},
 "02":{title:"02 彩虹流光体 · Version A",path:"02-rainbow-flow-body/previews/",images:[["01-front.svg","正视图","Front"]]}
 };
 const grid=document.getElementById("grid"),dlg=document.getElementById("viewer");
 function render(id){const s=sets[id];document.getElementById("group").textContent=s.title;document.getElementById("count").textContent=s.images.length+" 独立预览";
 document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.id===id)));
-grid.replaceChildren();s.images.forEach(([file,zh,en],i)=>{const src=s.path+file;let card=document.createElement("button");card.className="card";card.type="button";card.innerHTML='<div class="visual"><img loading="lazy" src="'+src+'" alt="'+zh+'"></div><div class="card-text"><div><strong>'+String(i).padStart(2,"0")+' · '+zh+'</strong><small>'+en+'</small></div><span aria-hidden="true">↗</span></div>';
-card.addEventListener("click",()=>{document.getElementById("vtitle").textContent=s.title+" · "+zh;document.getElementById("large").src=src;document.getElementById("large").alt=zh;document.getElementById("openimage").href=src;dlg.showModal()});grid.append(card)})}
+grid.replaceChildren();s.images.forEach(([file,zh,en,hi],i)=>{const src=hi?s.path+"../"+hi:s.path+file;let card=document.createElement("button");card.className="card";card.type="button";card.innerHTML='<div class="visual"><img loading="lazy" src="'+src+'" alt="'+zh+'"></div><div class="card-text"><div><strong>'+String(i).padStart(2,"0")+' · '+zh+'</strong><small>'+en+'</small></div><span aria-hidden="true">↗</span></div>';
+card.addEventListener("click",()=>{document.getElementById("vtitle").textContent=s.title+" · "+zh;document.getElementById("large").src=src;document.getElementById("large").alt=zh;document.getElementById("openimage").href=src;document.getElementById("sourceState").textContent=hi?"已入库高清原文件":"此图仍为低分辨率预览";dlg.showModal()});grid.append(card)})}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>render(b.dataset.id)));
 document.getElementById("close").addEventListener("click",()=>dlg.close());
 dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});render("01");
