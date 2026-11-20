@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 彩虹流光体 · Code-Ready 3D 打板</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#03060a;color:#e8f5ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 18% 0,#0d2033 0,transparent 40%),#03060a}
+header{padding:21px clamp(18px,3vw,43px);border-bottom:1px solid #233547;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#64bde9}.title{font-size:clamp(20px,3.2vw,31px);font-weight:650;letter-spacing:-.035em;margin:6px 0}.subtitle{font-size:12px;color:#8499aa}
+.status{border:1px solid #355b75;border-radius:999px;color:#c8ddf0;background:#112238;padding:7px 12px;font-size:11px;max-width:330px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;min-height:calc(100vh - 105px)}
+.stage{position:relative;min-height:610px;background:radial-gradient(ellipse at 50% 40%,#080b17 0,#010204 60%);overflow:hidden}
+#scene{display:block;width:100%;height:100%;touch-action:none;cursor:grab}#scene:active{cursor:grabbing}
+.topbar{position:absolute;top:18px;left:18px;right:18px;display:flex;gap:7px;flex-wrap:wrap;pointer-events:none}
+.topbar button{pointer-events:auto;background:#0b1d2bd9;color:#c6e8fc;border:1px solid #244c66;border-radius:8px;padding:8px 11px;font-size:12px;cursor:pointer}
+.topbar button:hover,.topbar button.active{border-color:#5ecfff;color:white;background:#16405d}
+.hint{position:absolute;bottom:19px;left:20px;color:#7193a6;font-size:11px;line-height:1.6;max-width:420px;pointer-events:none}
+.side{padding:24px 23px;border-left:1px solid #25394d;background:#08101b;overflow:auto}
+h2{font-size:13px;font-weight:650;color:#e4f5ff;margin:0 0 13px}section{border-bottom:1px solid #1e3344;padding:0 0 22px;margin-bottom:22px}
+label{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#a7bfce;font-size:13px;line-height:1.3}
+.layer{padding:8px 0}.layer input{accent-color:#61d8ff;width:17px;height:17px}
+input[type=range]{width:100%;accent-color:#5ad6ff;margin:12px 0 6px}
+.muted{font-size:12px;color:#7b94a7;line-height:1.65}p{margin:10px 0}
+.stat{display:grid;grid-template-columns:1fr auto;gap:8px;font-size:12px;color:#9ab3c4;margin-top:10px}.stat strong{color:#e3f4fe}
+.preview{background:#000;border:1px solid #294356;border-radius:10px;padding:6px;text-align:center}.preview img{display:block;margin:auto;max-width:160px;max-height:168px;object-fit:contain}
+.small-link{font-size:12px;color:#66c8ff;text-decoration:none}.small-link:hover{text-decoration:underline}
+.error{position:absolute;inset:20%;display:none;align-items:center;justify-content:center;padding:20px;text-align:center;color:#f7a7a7;line-height:1.7;z-index:3;background:#180b11ed;border:1px solid #6e3249;border-radius:12px}
+button:focus-visible,input:focus-visible{outline:2px solid #70e5ff;outline-offset:3px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.stage{height:min(72vh,780px);min-height:480px}.side{border-left:none;border-top:1px solid #25394d}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}</script>
+</head>
+<body>
+<header><div><div class="kicker">Museum of Fields · P1 Spirit Bodies · Code prototype</div><h1 class="title">02 / 彩虹流光体 <span style="color:#647d91;font-weight:400">A · Pilot</span></h1><div class="subtitle">真实 3D 几何 + Curves + Shader + Bloom | 全部由代码生成，不以图片冒充 3D</div></div><div class="status" id="status" role="status">加载 3D 场景中 · DRAFT / 未通过最终验收</div></header>
+<div class="layout">
+<main class="stage" aria-label="3D interactive figure canvas">
+<canvas id="scene" aria-label="3D Rainbow Flow Body, drag to rotate and scroll to zoom"></canvas>
+<div class="topbar" aria-label="Camera views">
+<button type="button" data-camera="front">正面</button><button type="button" data-camera="right">侧面</button><button type="button" data-camera="back">背面</button><button type="button" data-camera="three">45°</button><button type="button" data-camera="top">俯视</button><button type="button" data-camera="auto">自动旋转</button>
+</div>
+<div class="hint">鼠标拖动或触摸旋转 · 滚轮/双指缩放 · 视角按钮由同一个三维场景切换<br>注意：当前是根据原图假设的几何示范，不是已校准的最终复刻</div>
+<div class="error" id="error" role="alert"></div>
+</main>
+<aside class="side">
+<section><h2>结构分层 · 真实 3D 对象</h2>
+<label class="layer"><span>HumanBody3D · 半透明母体</span><input data-layer="body" type="checkbox" checked></label>
+<label class="layer"><span>RainbowFlow3D · 16条流线</span><input data-layer="flow" type="checkbox" checked></label>
+<label class="layer"><span>EnergyNodes3D · 6个光核</span><input data-layer="nodes" type="checkbox" checked></label>
+<label class="layer"><span>CrownBeam3D · 头顶光束</span><input data-layer="crown" type="checkbox" checked></label>
+<label class="layer"><span>Post FX · Bloom</span><input data-layer="bloom" type="checkbox" checked></label>
+</section>
+<section><h2>参数实验 · Code Controls</h2>
+<label for="speed"><span>流光速度</span><output id="speed-val">0.60×</output></label><input id="speed" type="range" min="0" max="2" step="0.05" value="0.6">
+<label for="bloom-strength"><span>Bloom 强度</span><output id="bloom-val">1.25</output></label><input id="bloom-strength" type="range" min="0.2" max="3" step="0.05" value="1.25">
+<label class="layer"><span>自动播放流动效果</span><input type="checkbox" id="animate" checked></label>
+</section>
+<section><h2>模型与资料</h2>
+<div class="stat"><span>人体母模型</span><strong>程序化 Mesh</strong></div>
+<div class="stat"><span>彩虹 3D 路径</span><strong>16 条假设曲线</strong></div>
+<div class="stat"><span>可控发光点</span><strong>6 个</strong></div>
+<div class="stat"><span>坐标与尺寸</span><strong>1.85 m 归一化假设</strong></div>
+<div class="stat"><span>图像准入评分</span><strong>63 / 100（暂定）</strong></div>
+<p class="muted">本原型用基础曲面模拟身体，没有恢复原图精确的人体拓扑。流线深度、背部位置、颜色分布属建模假设，不是可观测事实。</p>
+<a class="small-link" href="../review/asset-spec.json" target="_blank" rel="noopener">查看完整资产参数 JSON</a>
+</section>
+<section><h2>二维对照</h2><div class="preview"><img src="../previews/01-front.svg" alt="02 front generated reference preview"></div><p class="muted">这是先前生成的正面缩略图，用于外部对照，不映射到 3D 画面上。</p>
+<a class="small-link" href="../review/README.md">查看评测、差异与待验收项</a>
+</section>
+<section style="border-bottom:0"><h2>工程状态</h2><p class="muted">Stage A: 未批准；Stage B: 技术打板代码已建立，浏览器实际运行/截屏比对/性能验收仍待记录。</p><a class="small-link" href="../../3D-ASSET-REVIEW-V1.md">阅读 3D Code-Ready 入库标准</a></section>
+</aside>
+</div>
+<script type="module" src="./main.js"></script>
+</body></html>
