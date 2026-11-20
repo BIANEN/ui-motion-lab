@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spirit Bodies | 3D Asset Reference Gallery</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#060a11;color:#e7f2ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 85% 5%,#0e2239 0,transparent 44%),#060a11}
+main{max-width:1230px;padding:52px 24px 90px;margin:auto}header{border-bottom:1px solid #273748;padding-bottom:25px;margin-bottom:30px}
+.eyebrow{color:#60b9f6;text-transform:uppercase;letter-spacing:.24em;font-size:11px}h1{font-size:clamp(30px,5vw,56px);line-height:1.07;margin:12px 0 14px;font-weight:620;letter-spacing:-.045em}
+p{color:#9dafbe;line-height:1.7;margin:0 0 8px}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:28px 0 34px}.tab{cursor:pointer;border:1px solid #35536a;color:#bcd5e9;background:#09121e;border-radius:999px;padding:11px 18px;font:inherit;font-size:13px}.tab[aria-selected=true]{background:#1b4666;border-color:#4ec5fb;color:white}
+.summary{display:flex;gap:15px;flex-wrap:wrap;justify-content:space-between;align-items:end;margin:0 0 19px}.summary h2{font-size:20px;margin:0}.note{font-size:12px;color:#8ea5b7}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:15px}
+.card{display:block;text-align:left;border:1px solid #263c4b;background:linear-gradient(150deg,#0d1a29,#090f18);border-radius:14px;overflow:hidden;cursor:zoom-in;padding:0;color:#f5faff;font:inherit;transition:border-color .2s,transform .2s}
+.card:hover{transform:translateY(-3px);border-color:#49beff}.visual{background:black;min-height:274px;display:grid;place-items:center;padding:14px}
+.visual img{width:100%;height:260px;object-fit:contain;image-rendering:auto}.card-text{padding:14px 16px 17px;border-top:1px solid #233544;display:flex;align-items:center;justify-content:space-between;gap:10px}.card strong{font-size:13px;font-weight:550}.card small{display:block;font-size:11px;color:#7998a9;margin-top:5px}
+footer{border-top:1px solid #263846;margin-top:45px;padding-top:20px;color:#8298a7;font-size:12px}a{color:#78c7ff}
+dialog{border:1px solid #3e728f;background:#06090f;color:white;padding:20px;border-radius:16px;width:min(95vw,840px);max-height:94vh}
+dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:15px}.viewerhead b{font-size:15px}
+.close{border:1px solid #376077;background:#0f2130;color:white;padding:8px 14px;border-radius:8px;cursor:pointer}
+#large{display:block;max-width:100%;width:auto;height:min(72vh,720px);margin:auto;object-fit:contain;background:black}
+.viewerfoot{font-size:12px;color:#b2c5d4;padding-top:14px;display:flex;gap:20px;flex-wrap:wrap}
+</style></head>
+<body><main>
+<header><div class="eyebrow">Museum of Fields / Modeling Reference Library</div>
+<h1>SPIRIT BODIES<br>灵体 · 3D 参考图库</h1>
+<p>以单张视角与独立图层组织的三维建模参考。点击任一图片进入单图查看。</p>
+<p class="note">此处为网页预览缩略图，不是高清原始 PNG；正式建模应使用原始参考图与统一三维母模型。</p></header>
+<div class="tabs" role="tablist" aria-label="Select spirit body">
+<button class="tab" role="tab" aria-selected="true" data-id="01">01 · 蓝色网光体</button>
+<button class="tab" role="tab" aria-selected="false" data-id="02">02 · 彩虹流光体</button>
+</div>
+<div class="summary"><h2 id="group">01 蓝色网光体 · Version A</h2><span class="note" id="count"></span></div>
+<div class="grid" id="grid"></div>
+<footer><p>每张图片独立命名、独立索引。<a href="README.md">返回 GitHub 素材索引</a> · <a href="../../README.md">返回仓库首页</a></p><p>View angles generated independently are visual hypotheses, not calibrated 3D orthographic renders.</p></footer>
+</main>
+<dialog id="viewer" aria-label="Image viewer"><div class="viewerhead"><b id="vtitle"></b><button class="close" id="close">关闭 ✕</button></div><img id="large" alt=""><div class="viewerfoot"><a id="openimage" target="_blank" rel="noopener">单独打开预览文件</a><span>高清原始 PNG 待上传</span></div></dialog>
+<script>
+const sets={
+"01":{title:"01 蓝色网光体 · Version A",path:"01-blue-wireframe-light-body/previews/",images:[
+["00-original.svg","原始参考","Original reference"],
+["01-front.svg","正视图","Front"],
+["02-right-side.svg","右侧视图","Right Side"],
+["03-back.svg","背视图","Back"],
+["04-three-quarter.svg","45°透视图","Three-quarter"],
+["05-top-oblique.svg","高角度视图","Top-oblique (not orthographic)"],
+["06-wireframe-only.svg","独立网格层","Wireframe-only"],
+["07-energy-nodes.svg","发光节点层","Energy nodes"],
+["08-head-beam.svg","头顶光束层","Head beam"]
+]},
+"02":{title:"02 彩虹流光体 · Version A",path:"02-rainbow-flow-body/previews/",images:[["01-front.svg","正视图","Front"]]}
+};
+const grid=document.getElementById("grid"),dlg=document.getElementById("viewer");
+function render(id){const s=sets[id];document.getElementById("group").textContent=s.title;document.getElementById("count").textContent=s.images.length+" 独立预览";
+document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.id===id)));
+grid.replaceChildren();s.images.forEach(([file,zh,en],i)=>{const src=s.path+file;let card=document.createElement("button");card.className="card";card.type="button";card.innerHTML='<div class="visual"><img loading="lazy" src="'+src+'" alt="'+zh+'"></div><div class="card-text"><div><strong>'+String(i).padStart(2,"0")+' · '+zh+'</strong><small>'+en+'</small></div><span aria-hidden="true">↗</span></div>';
+card.addEventListener("click",()=>{document.getElementById("vtitle").textContent=s.title+" · "+zh;document.getElementById("large").src=src;document.getElementById("large").alt=zh;document.getElementById("openimage").href=src;dlg.showModal()});grid.append(card)})}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>render(b.dataset.id)));
+document.getElementById("close").addEventListener("click",()=>dlg.close());
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});render("01");
+</script></body></html>
