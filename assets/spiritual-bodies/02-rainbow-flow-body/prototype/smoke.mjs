@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import {mkdirSync,writeFileSync} from "node:fs";
 import {chromium} from "playwright";
+import {PNG} from "pngjs";
 const dest="assets/spiritual-bodies/02-rainbow-flow-body/prototype/rendered";
 mkdirSync(dest,{recursive:true});
 const failures=[];
@@ -31,6 +32,8 @@ try{
   assert.equal(d.rings,5,"crown rings");
   assert.ok(Object.values(d.layers).every(Boolean),"all layer groups visible initially");
   const canv=page.locator("#scene");
+  await page.addStyleTag({content:".topbar,.hint { display:none !important; }"});
+  const brightnessChecks=[];
   const shots=[
     ["front","01-code-render-front.png",pos=>Math.abs(pos[0])<0.005&&pos[2]>2],
     ["right","02-code-render-right.png",pos=>pos[0]>2&&Math.abs(pos[2])<0.005],
@@ -45,6 +48,16 @@ try{
     assert.ok(verify(state.camera),"camera preset "+camera+" position "+JSON.stringify(state.camera));
     const buffer=await canv.screenshot({path:dest+"/"+file});
     assert.ok(buffer.byteLength>11000,file+" appears blank/too small ("+buffer.byteLength+" bytes)");
+    const png=PNG.sync.read(buffer);
+    let bright=0, count=0;
+    for(let y=0;y<png.height;y+=12)for(let x=0;x<png.width;x+=12) {
+      const i=(y*png.width+x)*4;
+      if((png.data[i]+png.data[i+1]+png.data[i+2])/3>215)bright++;
+      count++;
+    }
+    const brightPercent=100*bright/count;
+    brightnessChecks.push({view:camera,brightPercent:+brightPercent.toFixed(2)});
+    assert.ok(brightPercent<18,file+": bloom washout detected: "+brightPercent.toFixed(2)+"% of sampled pixels nearly white");
   }
   await page.locator('[data-layer="flow"]').uncheck();
   assert.equal(await page.evaluate(()=>window.__rainbowDebug.getLayerVisibility().flow),false,"flow layer toggle");
@@ -75,6 +88,7 @@ try{
     "- Verified independent layer toggles: body, flow, nodes, crown, Bloom",
     "- Verified flow speed input and animation pause controls",
     "- Generated 5 source-code-rendered PNG views from one live WebGL scene",
+    "- Bright pixel ratios (near-white): "+brightnessChecks.map(x=>x.view+" "+x.brightPercent+"%").join(", "),
     "- **Does NOT establish accuracy against the source artwork or performance acceptability. Stage A/B still DRAFT.**",
     ""
   ];
