@@ -32,7 +32,6 @@ try{
   assert.equal(d.rings,5,"crown rings");
   assert.ok(Object.values(d.layers).every(Boolean),"all layer groups visible initially");
   const canv=page.locator("#scene");
-  await page.addStyleTag({content:".topbar,.hint { display:none !important; }"});
   const brightnessChecks=[];
   const shots=[
     ["front","01-code-render-front.png",pos=>Math.abs(pos[0])<0.005&&pos[2]>2],
@@ -46,7 +45,9 @@ try{
     await page.waitForTimeout(400);
     const state=await page.evaluate(()=>window.__rainbowDebug.getViewState());
     assert.ok(verify(state.camera),"camera preset "+camera+" position "+JSON.stringify(state.camera));
+    await page.evaluate(()=>{document.querySelector(".topbar").style.visibility="hidden";document.querySelector(".hint").style.visibility="hidden"});
     const buffer=await canv.screenshot({path:dest+"/"+file});
+    await page.evaluate(()=>{document.querySelector(".topbar").style.visibility="visible";document.querySelector(".hint").style.visibility="visible"});
     assert.ok(buffer.byteLength>11000,file+" appears blank/too small ("+buffer.byteLength+" bytes)");
     const png=PNG.sync.read(buffer);
     let bright=0, count=0;
