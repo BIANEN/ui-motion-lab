@@ -23,7 +23,7 @@ dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhea
 <header><div class="eyebrow">Museum of Fields / Modeling Reference Library</div>
 <h1>SPIRIT BODIES<br>灵体 · 3D 参考图库</h1>
 <p>以单张视角与独立图层组织的三维建模参考。点击任一图片进入单图查看。</p>
-<p class="note">01 的高清原始 PNG/JPG 已完整入库；点开即可查看完整分辨率。02 仍为低分辨率预览。正式建模需要统一三维母模型。</p></header>
+<p class="note">01 的高清原始 PNG/JPG 已完整入库；点开即可查看完整分辨率。02 也已上传原始 JPG 和五张高清 PNG。正式建模需要统一三维母模型。</p></header>
 <div class="tabs" role="tablist" aria-label="Select spirit body">
 <button class="tab" role="tab" aria-selected="true" data-id="01">01 · 蓝色网光体</button>
 <button class="tab" role="tab" aria-selected="false" data-id="02">02 · 彩虹流光体</button>
@@ -46,7 +46,7 @@ const sets={
 ["07-energy-nodes.svg","发光节点层","Energy nodes","version-A/layers/02-energy-nodes.png"],
 ["08-head-beam.svg","头顶光束层","Head beam","version-A/layers/03-head-beam.png"]
 ]},
-"02":{title:"02 彩虹流光体 · Version A",path:"02-rainbow-flow-body/previews/",images:[["01-front.svg","正视图","Front"]]}
+"02":{title:"02 彩虹流光体 · Version A",path:"02-rainbow-flow-body/previews/",images:[["01-front.svg","原始参考","Original image","source/00-original-reference.jpg"],["01-front.svg","正视图","Front · Main","version-A/views/01-front.png"],["01-front.svg","右侧视图","Right side · Main","version-A/views/02-right-side.png"],["01-front.svg","背视图","Back · Main","version-A/views/03-back.png"],["01-front.svg","45°斜视图","Three-quarter · Main","version-A/views/04-three-quarter.png"],["01-front.svg","高角度辅助图","Top-oblique · AUX (not orthographic)","version-A/views/05-top-oblique-AUX.png"]]}
 };
 const grid=document.getElementById("grid"),dlg=document.getElementById("viewer");
 function render(id){const s=sets[id];document.getElementById("group").textContent=s.title;document.getElementById("count").textContent=s.images.length+" 独立预览";
