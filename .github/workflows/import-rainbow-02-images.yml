@@ -1,0 +1,68 @@
+name: Import approved 02 Rainbow Flow Body A images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-rainbow-02-images.yml'
+      - 'assets/spiritual-bodies/02-rainbow-flow-body/archive-import.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-rainbow-02-images
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download, verify and extract only approved images
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, urllib.request, io, zipfile
+          base=pathlib.Path("assets/spiritual-bodies/02-rainbow-flow-body")
+          info=json.loads((base/"archive-import.json").read_text(encoding="utf8"))
+          assert info["asset"]=="02-rainbow-flow-body" and info["status"]=="user-approved"
+          req=urllib.request.Request(info["source_archive_url"],headers={"User-Agent":"Museum-of-Fields-Archive-Importer/1.0"})
+          with urllib.request.urlopen(req,timeout=80) as resp: data=resp.read()
+          assert len(data)==info["archive_size"], f"Archive size mismatch {len(data)} vs {info['archive_size']}"
+          assert hashlib.sha256(data).hexdigest()==info["archive_sha256"], "Archive SHA256 mismatch"
+          with zipfile.ZipFile(io.BytesIO(data)) as zipf:
+              names=set(zipf.namelist())
+              for item in info["files"]:
+                  p=pathlib.PurePosixPath(item["path"])
+                  assert not p.is_absolute() and ".." not in p.parts
+                  assert str(p) in names, f"missing {p}"
+                  content=zipf.read(str(p))
+                  assert len(content)==item["bytes"], f"size {p}"
+                  assert hashlib.sha256(content).hexdigest()==item["sha256"], f"hash {p}"
+                  dest=base.joinpath(*p.parts)
+                  if dest.exists():
+                      assert dest.read_bytes()==content, f"existing asset differs: {dest}"
+                  else:
+                      dest.parent.mkdir(parents=True,exist_ok=True)
+                      dest.write_bytes(content)
+                  print(f"Verified {p} ({len(content)} bytes, SHA256 {item['sha256'][:14]})")
+          print("Approved original JPG + 5 independent HD PNGs verified.")
+          PY
+      - name: Commit only approved image binaries
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/spiritual-bodies/02-rainbow-flow-body/source/ assets/spiritual-bodies/02-rainbow-flow-body/version-A/views/
+          if git diff --cached --quiet; then
+            echo 'Already uploaded and verified.'
+          else
+            git commit -m 'assets(02): archive approved Rainbow Flow Body A original and five HD views'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
