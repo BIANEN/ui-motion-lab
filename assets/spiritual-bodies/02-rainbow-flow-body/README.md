@@ -1,29 +1,32 @@
 # 02 彩虹流光体 | Rainbow Flow Body
 
-**Version A · Code-Ready Pilot (DRAFT / 待确认入库)** · [返回资产总目录](../README.md) · [独立图像画廊](../gallery.html)
+**A 版 · 忠实复刻多视角图片** · **用户已确认正式归档** · [返回图片总目录](../README.md) · [网页图片画廊](../gallery.html)
 
-## 先看这一套“打板”补充资料
+本页只展示图片资产，不将 3D 程序截图混入参考库。点击下方任意图可直接查看完整分辨率。
 
-| 类型 | 用途 | 入口 |
-| --- | --- | --- |
-| **可交互三维小样** | 纯代码创建 Human Mesh、16 条流光、6 个光核、头顶白色光束；支持 360° 旋转、五相机位、分层开关 | **[打开 Three.js 在线打板](https://bianen.github.io/ui-motion-lab/assets/spiritual-bodies/02-rainbow-flow-body/prototype/)** |
-| **源代码** | 可交给 Claude 继续修改；不含伪 3D 图片贴图 | [index.html](prototype/index.html) · [main.js](prototype/main.js) |
-| **3D 参数** | 三维坐标假设、16条 Curve、6个 Node、Shader 控制 | [asset-spec.json](review/asset-spec.json) |
-| **六项评估报告** | 63/100 暂定、证据差异、待补图层、验收门槛 | [查看评测报告](review/README.md) |
-| **项目级规范** | 以后 01–11 均适用 | [3D-ASSET-REVIEW-V1](../3D-ASSET-REVIEW-V1.md) |
+## 高清原图与五张独立多视角图
 
-### 现有正面参考图
+| | | |
+|:---:|:---:|:---:|
+| [<img src="source/00-original-reference.jpg" width="180" alt="00 原始图"/>](source/00-original-reference.jpg)<br>**00 原始图**<br>Original source | [<img src="version-A/views/01-front.png" width="180" alt="01 正视图"/>](version-A/views/01-front.png)<br>**01 正视图**<br>Front · Primary | [<img src="version-A/views/02-right-side.png" width="180" alt="02 右侧图"/>](version-A/views/02-right-side.png)<br>**02 右侧图**<br>Right side · Primary |
+| [<img src="version-A/views/03-back.png" width="180" alt="03 背视图"/>](version-A/views/03-back.png)<br>**03 背视图**<br>Back · Primary | [<img src="version-A/views/04-three-quarter.png" width="180" alt="04 45°图"/>](version-A/views/04-three-quarter.png)<br>**04 45°图**<br>Three-quarter · Primary | [<img src="version-A/views/05-top-oblique-AUX.png" width="180" alt="05 高角度辅助图"/>](version-A/views/05-top-oblique-AUX.png)<br>**05 高角度辅助图**<br>Top-oblique · AUX |
 
-[<img src="previews/01-front.svg" width="230" alt="02 Rainbow Flow Body generated front preview">](previews/01-front.svg)
 
-**图片状态**：GitHub 中目前仅有正面低分辨率预览。原始设计和新生成的多角度图片仍在候选评测阶段，**尚未按正式入库流程上传高清文件**。这是为了遵守“检测后询问用户，用户确认才将整套候选高清图片归入版本库”的工作方式。
+## 入库分类
 
-## 当前判断
+| 资产 | 文件 | 用途 |
+|---|---|---|
+| 原始来源 | [00 原图](source/00-original-reference.jpg) | 保留原艺术图，原样 JPG |
+| 主视角 1 | [01 正视图](version-A/views/01-front.png) | 彩虹结构正面与光核位置 |
+| 主视角 2 | [02 右侧图](version-A/views/02-right-side.png) | 身体深度的生成参考 |
+| 主视角 3 | [03 背视图](version-A/views/03-back.png) | 背面流线生成参考 |
+| 主视角 4 | [04 45°图](version-A/views/04-three-quarter.png) | 三分之四角度参考 |
+| **AUX 辅助视角** | [05 高角度](version-A/views/05-top-oblique-AUX.png) | **非正交俯视，不作为标准 Top 视图** |
 
-- **目标**：Claude + Three.js / WebGL 从结构参数纯代码实现 3D 可交互灵体。
-- **图像评估**：63/100 暂定；分数是人工研判，不是实际网页测试。
-- **打板演示**：代码已加入仓库，使用可调整的三维参数，是后续开发的结构起点。
-- **Stage A / Stage B**：都**未正式批准**。运行和截图对照/性能检查必须单独验收。
-- **高角度图**：候选辅助角度，不是正交 Top View。
+### 重要标注
 
-**下一步建议**：实际查看网页打板 → 根据旋转的侧面与背面效果调整 3D 曲线的深度坐标 → 产生统一母模型的真实多视角截图 → 补充原始高清参考图 → 重新评分 → 向用户申请正式入库。
+- 本次仅归档用户认可的 2D 参考图：原始 JPG 加五张独立 PNG（各为 **1024 × 1536**）。
+- 五张生成参考图是基于原始灵体的多视角艺术推断，**尚未由同一 3D 模型校准**。不能当作精准空间测量或真实正交制图。
+- 仓库中此前已有的 `prototype/` 3D 实验代码与渲染截图不是本次正式图片内容，本次**没有更改或运行它们**。
+- [SHA-256 入库清单](archive-import.json) 保留图片来源、文件大小与校验值；归档工作流在上传每张高清图前进行字节与哈希校验。
+- 未来 B 版另设目录，不覆盖 A 版。
