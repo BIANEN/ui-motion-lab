@@ -1,0 +1,40 @@
+{
+  "asset": "02-rainbow-flow-body",
+  "version": "A",
+  "status": "user-approved",
+  "source_archive_url": "https://v3b.fal.media/files/b/0ab3d621/oLteAb-S_mbjTj6NrJx53_02-rainbow-flow-body-A-multiview-PENDING-REVIEW.zip",
+  "archive_sha256": "93ddb8e4b50d9cd8aa0afe728d39211bd795fb390a17274ffe765c61c98fa5c6",
+  "archive_size": 3884634,
+  "files": [
+    {
+      "path": "source/00-original-reference.jpg",
+      "bytes": 37800,
+      "sha256": "f908a543a4306d92e9f22b992556334b647e3e81a7e65ce38b604170d448a3b1"
+    },
+    {
+      "path": "version-A/views/01-front.png",
+      "bytes": 775994,
+      "sha256": "705c96fb3bfd927dd1acc6b8efc89a6ad011d6fe898a3e7fcab4ad0a80679cab"
+    },
+    {
+      "path": "version-A/views/02-right-side.png",
+      "bytes": 603741,
+      "sha256": "f2632ae0d6d7b380b210796b7983b1e65ab010f7fe0331703c14ec896808aa16"
+    },
+    {
+      "path": "version-A/views/03-back.png",
+      "bytes": 819439,
+      "sha256": "192a6d3f8a878c85ede2b5368bd12f3f97914db228acdeefc63ff17e179d22bb"
+    },
+    {
+      "path": "version-A/views/04-three-quarter.png",
+      "bytes": 790758,
+      "sha256": "c9bdeb95e376f8c881a70d258853f345928b562fa8937406fc3a07bfa25383cd"
+    },
+    {
+      "path": "version-A/views/05-top-oblique-AUX.png",
+      "bytes": 867857,
+      "sha256": "e9566142d08afc079f7bf1a040f3c560dbcb97f82a5334bcb22c822afd9fd449"
+    }
+  ]
+}
