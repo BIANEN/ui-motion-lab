@@ -6,6 +6,8 @@
 
 本目录只收录原始二维参考图与五张独立高清多视角图片，不包括 3D 模型、代码或交互程序。
 
+**[一键下载整套 A 版图片 ZIP](version-A/03-yellow-wireframe-light-body-A-package.zip)**（5 张高清多视角 PNG + README）
+
 ## 高清图库
 
 ### 原始参考图 / Original
