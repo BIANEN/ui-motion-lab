@@ -42,6 +42,11 @@ jobs:
           arch=d["archive"]
           payload=get(arch["url"])
           assert len(payload)==arch["bytes"] and hashlib.sha256(payload).hexdigest()==arch["sha256"], "ZIP mismatch"
+          bundled=base/"version-A/03-yellow-wireframe-light-body-A-package.zip"
+          bundled.parent.mkdir(parents=True,exist_ok=True)
+          if bundled.exists(): assert bundled.read_bytes()==payload, "Existing ZIP mismatch"
+          else: bundled.write_bytes(payload)
+          print("VERIFIED PACKAGE ZIP", bundled, len(payload))
           with zipfile.ZipFile(io.BytesIO(payload)) as z:
               for item in d["views"]:
                   raw=z.read(arch["zip_prefix"]+item["path"])
@@ -53,7 +58,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/spiritual-bodies/03-yellow-wireframe-light-body/source/ assets/spiritual-bodies/03-yellow-wireframe-light-body/version-A/views/
+          git add assets/spiritual-bodies/03-yellow-wireframe-light-body/source/ assets/spiritual-bodies/03-yellow-wireframe-light-body/version-A/views/ assets/spiritual-bodies/03-yellow-wireframe-light-body/version-A/03-yellow-wireframe-light-body-A-package.zip
           if ! git diff --cached --quiet; then
             git commit -m 'assets(03): archive approved yellow wireframe A views and source'
             for attempt in 1 2 3 4 5 6 7 8; do
