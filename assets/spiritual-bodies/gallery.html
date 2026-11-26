@@ -23,10 +23,11 @@ dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhea
 <header><div class="eyebrow">Museum of Fields / Modeling Reference Library</div>
 <h1>SPIRIT BODIES<br>灵体 · 3D 参考图库</h1>
 <p>以单张视角与独立图层组织的三维建模参考。点击任一图片进入单图查看。</p>
-<p class="note">01 的高清原始 PNG/JPG 已完整入库；点开即可查看完整分辨率。02 也已上传原始 JPG 和五张高清 PNG。正式建模需要统一三维母模型。</p></header>
+<p class="note">01 的高清原始 PNG/JPG 已完整入库；点开即可查看完整分辨率。02 与 03 也已归档原始 JPG 和五张独立高清 PNG；高角度均为 AUX。</p></header>
 <div class="tabs" role="tablist" aria-label="Select spirit body">
 <button class="tab" role="tab" aria-selected="true" data-id="01">01 · 蓝色网光体</button>
 <button class="tab" role="tab" aria-selected="false" data-id="02">02 · 彩虹流光体</button>
+<button class="tab" role="tab" aria-selected="false" data-id="03">03 · 黄色网光体</button>
 </div>
 <div class="summary"><h2 id="group">01 蓝色网光体 · Version A</h2><span class="note" id="count"></span></div>
 <div class="grid" id="grid"></div>
@@ -35,6 +36,15 @@ dialog::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}.viewerhea
 <dialog id="viewer" aria-label="Image viewer"><div class="viewerhead"><b id="vtitle"></b><button class="close" id="close">关闭 ✕</button></div><img id="large" alt=""><div class="viewerfoot"><a id="openimage" target="_blank" rel="noopener">单独打开预览文件</a><span id="sourceState">原始高清文件</span></div></dialog>
 <script>
 const sets={
+"03":{title:"03 黄色网光体 · Version A / 中轴脉轮修正版",path:"03-yellow-wireframe-light-body/",images:[
+["source/00-original-reference.jpg","原始参考","Original reference","source/00-original-reference.jpg"],
+["version-A/views/01-front.png","正视图","Front · Main","version-A/views/01-front.png"],
+["version-A/views/02-right-side.png","右侧视图","Right side · Main","version-A/views/02-right-side.png"],
+["version-A/views/03-back.png","背视图","Back · Main","version-A/views/03-back.png"],
+["version-A/views/04-three-quarter.png","45°斜视图","Three-quarter · Main","version-A/views/04-three-quarter.png"],
+["version-A/views/05-top-oblique-AUX.png","高角度辅助图","Top-oblique · AUX","version-A/views/05-top-oblique-AUX.png"]]
+},
+
 "01":{title:"01 蓝色网光体 · Version A",path:"01-blue-wireframe-light-body/previews/",images:[
 ["00-original.svg","原始参考","Original reference","source/01-original-reference.jpg"],
 ["01-front.svg","正视图","Front","version-A/views/01-front.png"],
@@ -51,7 +61,7 @@ const sets={
 const grid=document.getElementById("grid"),dlg=document.getElementById("viewer");
 function render(id){const s=sets[id];document.getElementById("group").textContent=s.title;document.getElementById("count").textContent=s.images.length+" 独立预览";
 document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.id===id)));
-grid.replaceChildren();s.images.forEach(([file,zh,en,hi],i)=>{const src=hi?s.path+"../"+hi:s.path+file;let card=document.createElement("button");card.className="card";card.type="button";card.innerHTML='<div class="visual"><img loading="lazy" src="'+src+'" alt="'+zh+'"></div><div class="card-text"><div><strong>'+String(i).padStart(2,"0")+' · '+zh+'</strong><small>'+en+'</small></div><span aria-hidden="true">↗</span></div>';
+grid.replaceChildren();s.images.forEach(([file,zh,en,hi],i)=>{const src=hi?s.path+(id==="03"?"":"../")+hi:s.path+file;let card=document.createElement("button");card.className="card";card.type="button";card.innerHTML='<div class="visual"><img loading="lazy" src="'+src+'" alt="'+zh+'"></div><div class="card-text"><div><strong>'+String(i).padStart(2,"0")+' · '+zh+'</strong><small>'+en+'</small></div><span aria-hidden="true">↗</span></div>';
 card.addEventListener("click",()=>{document.getElementById("vtitle").textContent=s.title+" · "+zh;document.getElementById("large").src=src;document.getElementById("large").alt=zh;document.getElementById("openimage").href=src;document.getElementById("sourceState").textContent=hi?"已入库高清原文件":"此图仍为低分辨率预览";dlg.showModal()});grid.append(card)})}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>render(b.dataset.id)));
 document.getElementById("close").addEventListener("click",()=>dlg.close());
