@@ -1,0 +1,50 @@
+{
+  "asset": "03-yellow-wireframe-light-body",
+  "variant": "A",
+  "status": "user-approved",
+  "classification": "2D-reference-images-only",
+  "archive": {
+    "url": "https://v3b.fal.media/files/b/0ab3fbe6/JBemu-Tz3eKhq76qUFAyK_03-yellow-wireframe-light-body-A-package.zip",
+    "bytes": 4844075,
+    "sha256": "fba8d6c0e58a18bdb746a41a042ccdc0d6e42684e9f6a3f8ab628350fa3bac6c",
+    "zip_prefix": "03-yellow-wireframe-light-body-A-package/"
+  },
+  "original": {
+    "path": "source/00-original-reference.jpg",
+    "url": "https://v3b.fal.media/files/b/0ab3fbe6/wmzDPZHprv4iPtMq3ru9z_1c06ef79-8002-51ae-b656-f91430b157b2.jpg",
+    "bytes": 49845,
+    "sha256": "65f731ddab746dfa361b72a07e1135685ad5485b9429866f4f2b60a82457d038"
+  },
+  "views": [
+    {
+      "path": "version-A/views/01-front.png",
+      "bytes": 1147812,
+      "sha256": "35091740cfa042a90ba39183f1af78fb4ea4bd65e8ddc4f0683a8a5871d2a4b1",
+      "type": "primary"
+    },
+    {
+      "path": "version-A/views/02-right-side.png",
+      "bytes": 812846,
+      "sha256": "f29acd071ca1acf5388efb2caa96b356fb45b6589741282c4fc1155ec03fd9b6",
+      "type": "primary"
+    },
+    {
+      "path": "version-A/views/03-back.png",
+      "bytes": 1139554,
+      "sha256": "76952a92f9035dc3df922ca9c272d514441e0ab1f3e249da2992fd66550f9977",
+      "type": "primary"
+    },
+    {
+      "path": "version-A/views/04-three-quarter.png",
+      "bytes": 1062441,
+      "sha256": "8bbc63d2fccccf12cbcf0c49abc7b0195255e7f283743b7becd02f39cae17a92",
+      "type": "primary"
+    },
+    {
+      "path": "version-A/views/05-top-oblique-AUX.png",
+      "bytes": 1160138,
+      "sha256": "18eeaf0a6ae9b258a8ae0d4d7d24121985e9cf0402c95f309ac9235d2ae720ae",
+      "type": "AUX"
+    }
+  ]
+}
