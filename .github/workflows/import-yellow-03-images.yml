@@ -56,6 +56,15 @@ jobs:
           git add assets/spiritual-bodies/03-yellow-wireframe-light-body/source/ assets/spiritual-bodies/03-yellow-wireframe-light-body/version-A/views/
           if ! git diff --cached --quiet; then
             git commit -m 'assets(03): archive approved yellow wireframe A views and source'
-            git pull --rebase origin main
-            git push origin HEAD:main
+            for attempt in 1 2 3 4 5 6 7 8; do
+              git pull --rebase origin main
+              if git push origin HEAD:main; then
+                echo "Pushed approved images successfully"
+                exit 0
+              fi
+              echo "Concurrent branch update, retry number $attempt"
+              sleep 3
+            done
+            echo "Failed to push after multiple retries" >&2
+            exit 1
           fi
