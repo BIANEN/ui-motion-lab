@@ -92,3 +92,9 @@ To inspect running diagnostics, use `window.photonDebug` in a browser's develope
 - [完整工程提示词与实操工作流](research/claude-3d-codegen/docs/engineering-prompts-and-workflows.md) · [可视化 HTML 工作台](research/claude-3d-codegen/workbench/index.html) · [开源案例研究库](research/claude-3d-codegen/data/open-source-case-database.md)
 
 用 Claude Code 打开本仓库后，输入：`Read research/claude-3d-codegen/CLAUDE.md first and follow its instructions.`
+
+
+### 03 黄色网光体 · Yellow Wireframe Light Body — A 版高清图
+
+- [03 高清图片图库](assets/spiritual-bodies/03-yellow-wireframe-light-body/README.md) · [全套 A 版 ZIP](assets/spiritual-bodies/03-yellow-wireframe-light-body/version-A/03-yellow-wireframe-light-body-A-package.zip) · [统一网页画廊](assets/spiritual-bodies/gallery.html)
+- 正视、右侧、背视、45°主视角 + 高角度 AUX；脉轮沿身体内部中轴的修正版。纯图片资料，无 3D 代码改动。
