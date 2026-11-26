@@ -8,6 +8,7 @@
 |:--:|---|---|---|
 | 01 | [蓝色网光体 / Blue Wireframe Light Body](01-blue-wireframe-light-body/README.md) | [<img src="01-blue-wireframe-light-body/version-A/views/01-front.png" width="130" alt="Blue wireframe light body">](01-blue-wireframe-light-body/README.md) | A版：9张高清原图已入库、SHA-256 已验证 |
 | 02 | [彩虹流光体 / Rainbow Flow Body](02-rainbow-flow-body/README.md) | [<img src="02-rainbow-flow-body/version-A/views/01-front.png" width="130" alt="Rainbow flow body">](02-rainbow-flow-body/README.md) | A版：原图＋4 张主视角＋1 张 AUX 辅助高清图正式入库；图片与旧实验项目分开 |
+| 03 | [黄色网光体 / Yellow Wireframe Light Body](03-yellow-wireframe-light-body/README.md) | [<img src="03-yellow-wireframe-light-body/version-A/views/01-front.png" width="130" alt="Yellow wireframe light body">](03-yellow-wireframe-light-body/README.md) | A版：原图 + 4 张主视角 + 1 张 AUX 高清图，脉轮位于中轴修正版 |
 
 ## 素材库约定
 - 每个形态单独编号、单独目录；每张视角及图层都是独立图像，**不以拼版替代单张资产**。
